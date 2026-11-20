@@ -1,0 +1,15 @@
+/* humans.txt */
+
+/* TEAM */
+Developer: Polycarp Mubweka Etyang
+Role: Brother, developer
+LinkedIn: https://www.linkedin.com/in/polycarpdev/
+Instagram: @polycarpdev
+Site: https://linktr.ee/polycarpdev
+
+/* COLLABORATOR */
+Claude, by Anthropic
+
+/* SITE */
+Built in memory of Thadeus "Tedy" Esirom Etyang
+Stack: Astro, React, TypeScript, Node.js, PostgreSQL

@@ -1,0 +1,12 @@
+# .gitignore
+certs.txt
+shit.txt
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+photos-raw/
