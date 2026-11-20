@@ -1,0 +1,108 @@
+---
+// src/components/Trail.astro
+import Tedy from './Tedy.astro';
+import Icon from './Icon.astro';
+import { TRAIL } from '../data/trail';
+import '../styles/trail.css';
+
+let seed = 7;
+const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const stars = Array.from({ length: 90 }, () => ({
+  x: (rand() * 100).toFixed(2),
+  y: (rand() * 62).toFixed(2),
+  r: (rand() * 1.1 + 0.3).toFixed(2),
+  d: (rand() * 4).toFixed(2),
+}));
+const stopsData = JSON.stringify(TRAIL.map(({ year, outfit, accessory }) => ({ year, outfit, accessory })));
+const pad = (i: number) => String(i + 1).padStart(2, '0');
+---
+<section class="trail" data-trail data-stops={stopsData} style={`--stops:${TRAIL.length}`}>
+  <div class="stage" data-stage>
+    <svg class="sky" aria-hidden="true">
+      {stars.map((s) => (
+        <circle cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} style={`animation-delay:-${s.d}s`} />
+      ))}
+    </svg>
+    <div class="ridge ridge-far" data-ridge="0.08" aria-hidden="true"></div>
+    <div class="ridge ridge-near" data-ridge="0.22" aria-hidden="true"></div>
+
+    <div class="world" data-world aria-hidden="true">
+      {TRAIL.map((s, i) =>
+        i === TRAIL.length - 1 ? (
+          <div class="fire" data-post>
+            <span class="flame"></span>
+            <span class="flame f2"></span>
+            <span class="flame f3"></span>
+            <span class="logs"></span>
+          </div>
+        ) : (
+          <div class="post" data-post>
+            <span class="post-sign"><b>{pad(i)}</b>{s.year}</span>
+            <span class="post-pole"></span>
+          </div>
+        )
+      )}
+    </div>
+
+    <div class="ground" aria-hidden="true"></div>
+
+    <div class="hero" data-hero>
+      <p class="hero-eyebrow">Thadeus Esirom Etyang</p>
+      <h1 class="hero-name">Tedy</h1>
+      <p class="hero-dates">07.07.1999 <span>—</span> 11.11.2026</p>
+      <p class="hero-hint"><Icon name="arrow-down" /> Scroll to walk with him</p>
+    </div>
+
+    <ol class="chapters">
+      {TRAIL.map((s, i) => (
+        <li class="chapter" data-chapter>
+          <p class="chapter-n">Stop <b>{pad(i)}</b> · {s.year}</p>
+          <h2 class="chapter-title">{s.title}</h2>
+          <p class="chapter-line">{s.line}</p>
+          <a class="chapter-link" href={s.href}>Open this chapter <Icon name="arrow-right" /></a>
+        </li>
+      ))}
+    </ol>
+
+    <div class="tedy-wrap" data-tedy-wrap>
+      <p class="bubble" data-bubble aria-live="polite"></p>
+      <button type="button" class="tedy-btn" data-tedy-btn aria-label="Say hi to Tedy">
+        <Tedy />
+      </button>
+    </div>
+
+    <div class="hud">
+      <p class="year" data-year>{TRAIL[0].year}</p>
+      <nav class="minimap" aria-label="Trail stops">
+        <span class="minimap-track"><span class="minimap-fill" data-fill></span></span>
+        {TRAIL.map((s, i) => (
+          <button
+            type="button"
+            class="minimap-dot"
+            data-jump={i}
+            aria-label={`Go to ${s.title}`}
+            style={`--x:${(i / (TRAIL.length - 1)) * 100}%`}
+          ></button>
+        ))}
+      </nav>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initTrail } from '../scripts/trail';
+
+  let cleanup: (() => void) | null = null;
+
+  document.addEventListener('astro:page-load', () => {
+    cleanup?.();
+    cleanup = null;
+    const root = document.querySelector<HTMLElement>('[data-trail]');
+    if (root) cleanup = initTrail(root);
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    cleanup?.();
+    cleanup = null;
+  });
+</script>
