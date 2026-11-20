@@ -23,6 +23,14 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
         <circle cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} style={`animation-delay:-${s.d}s`} />
       ))}
     </svg>
+    <div class="sun" aria-hidden="true"></div>
+    <div class="moon" aria-hidden="true"></div>
+    <div class="clouds" data-clouds aria-hidden="true">
+      <span class="cloud c1"></span>
+      <span class="cloud c2"></span>
+      <span class="cloud c3"></span>
+      <span class="cloud c4"></span>
+    </div>
     <div class="ridge ridge-far" data-ridge="0.08" aria-hidden="true"></div>
     <div class="ridge ridge-near" data-ridge="0.22" aria-hidden="true"></div>
 

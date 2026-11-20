@@ -1,0 +1,5 @@
+// api/app.js
+import('./src/server.mjs').catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -1,4 +1,6 @@
 // src/scripts/trail.ts
+import { paintSky, resetSky } from './sky';
+
 type Stop = { year: number; outfit: string; accessory: string };
 
 const WALK = 1;
@@ -13,6 +15,7 @@ export function initTrail(root: HTMLElement): () => void {
 
   const stage = q<HTMLElement>('[data-stage]');
   const world = q<HTMLElement>('[data-world]');
+  const clouds = q<HTMLElement>('[data-clouds]');
   const hero = q<HTMLElement>('[data-hero]');
   const wrap = q<HTMLElement>('[data-tedy-wrap]');
   const tedy = q<SVGSVGElement>('[data-tedy]');
@@ -42,6 +45,8 @@ export function initTrail(root: HTMLElement): () => void {
   let shownYear = -1;
   let bubbleTimer = 0;
   let greetTimer = 0;
+
+  resetSky();
 
   function layout() {
     stageW = stage.clientWidth;
@@ -119,11 +124,17 @@ export function initTrail(root: HTMLElement): () => void {
     if (Math.abs(s.x - current) < 0.5) current = s.x;
     const dx = current - prev;
     const speed = Math.abs(dx);
+    const pos = current / spacing - 1;
+    const f = Math.min(Math.max(pos / (n - 1), 0), 1);
 
     world.style.transform = `translate3d(${charX - current}px, 0, 0)`;
+    clouds.style.transform = `translate3d(${-current * 0.05}px, 0, 0)`;
     ridges.forEach((r) => {
-      r.style.backgroundPositionX = `${-current * Number(r.dataset.ridge)}px`;
+      const v = `${-current * Number(r.dataset.ridge)}px 0`;
+      r.style.setProperty('-webkit-mask-position', v);
+      r.style.setProperty('mask-position', v);
     });
+    paintSky(stage, f);
 
     if (speed > 0.25) {
       lastMove = now;
@@ -156,9 +167,7 @@ export function initTrail(root: HTMLElement): () => void {
     }
 
     hero.style.opacity = String(Math.max(0, 1 - s.u / 0.4));
-
-    const pos = current / spacing - 1;
-    fill.style.width = `${Math.min(Math.max(pos / (n - 1), 0), 1) * 100}%`;
+    fill.style.width = `${f * 100}%`;
     dots.forEach((d, k) => d.classList.toggle('is-passed', k <= pos + 0.001));
 
     raf = requestAnimationFrame(frame);
