@@ -7,6 +7,7 @@ import '@fontsource/ibm-plex-mono/500.css';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Seo from '../components/Seo.astro';
+import ScrollBall from '../components/ScrollBall.astro';
 
 interface Props {
   title: string;
@@ -32,6 +33,7 @@ const { title, description, image } = Astro.props;
   <body>
     <a href="#main" class="skip">Skip to content</a>
     <Nav />
+    <ScrollBall />
     <main id="main" transition:animate="fade">
       <slot />
     </main>

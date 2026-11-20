@@ -21,16 +21,23 @@
 }
 .tedy.is-left { transform: scaleX(-1); }
 
+.tedy line { stroke-linecap: round; fill: none; }
+.tedy .s-skin { stroke: var(--skin); }
+.tedy .s-jersey { stroke: var(--jersey); }
+.tedy .s-shorts { stroke: var(--shorts); }
+.tedy .s-sock { stroke: var(--sock); }
+.tedy .s-tee { stroke: var(--tee); }
+.tedy .s-jeans { stroke: var(--jeans); }
+.tedy .s-camo { stroke: url(#camo); }
+
 .tedy .c-skin { fill: var(--skin); }
 .tedy .c-skin-dark { fill: var(--skin-dark); }
 .tedy .c-jersey { fill: var(--jersey); }
 .tedy .c-shorts { fill: var(--shorts); }
-.tedy .c-sock { fill: var(--sock); }
 .tedy .c-tee { fill: var(--tee); }
 .tedy .c-jeans { fill: var(--jeans); }
 .tedy .c-sneaker { fill: var(--sneaker); }
-.tedy .c-sole { fill: #c9c6bf; }
-.tedy .c-red { fill: #da291c; }
+.tedy .c-sole { fill: #d8d4cc; }
 .tedy .c-cap { fill: var(--cap); }
 .tedy .c-cap-dark { fill: var(--cap-dark); }
 .tedy .c-boot { fill: var(--boot); }
@@ -55,42 +62,63 @@
 .tedy[data-acc="camera"] .acc-camera,
 .tedy[data-acc="headphones"] .acc-headphones { display: inline; }
 
-.tedy .part { transform-box: view-box; }
-.tedy .body { transform-origin: 60px 214px; transition: transform 0.5s ease; }
-.tedy .arm-back { transform-origin: 48px 54px; }
-.tedy .arm-front {
-  transform-origin: 66px 54px;
-  transition: transform 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
-}
-.tedy .leg-back { transform-origin: 53px 100px; transition: transform 0.5s ease; }
-.tedy .leg-front { transform-origin: 63px 100px; transition: transform 0.5s ease; }
+.tedy .part { transform-box: view-box; transition: transform 0.5s ease; }
+.tedy .body { transform-origin: 61px 214px; }
+.tedy .head { transform-origin: 61px 44px; }
+.tedy .leg-back .thigh { transform-origin: 55px 104px; }
+.tedy .leg-back .shin { transform-origin: 55px 156px; }
+.tedy .leg-front .thigh { transform-origin: 63px 104px; }
+.tedy .leg-front .shin { transform-origin: 63px 156px; }
+.tedy .arm-back .upper { transform-origin: 52px 57px; }
+.tedy .arm-back .fore { transform-origin: 52px 86px; }
+.tedy .arm-front .upper { transform-origin: 68px 57px; transition: transform 0.45s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.tedy .arm-front .fore { transform-origin: 68px 86px; }
+.tedy .eye { transform-box: view-box; transform-origin: 67px 26.5px; animation: tedy-blink 5.2s infinite; }
+.tedy .finger { opacity: 0; transition: opacity 0.2s; }
+.tedy .seat { opacity: 0; transition: opacity 0.4s; }
 
-.tedy.is-walking .leg-front { animation: tedy-leg var(--step) ease-in-out infinite; }
-.tedy.is-walking .leg-back {
-  animation: tedy-leg var(--step) ease-in-out infinite;
-  animation-delay: calc(var(--step) * -0.5);
-}
-.tedy.is-walking .arm-back { animation: tedy-arm var(--step) ease-in-out infinite; }
-.tedy.is-walking .arm-front {
-  animation: tedy-arm var(--step) ease-in-out infinite;
-  animation-delay: calc(var(--step) * -0.5);
-}
+.tedy.is-walking .leg-front .thigh { animation: tedy-thigh var(--step) ease-in-out infinite; }
+.tedy.is-walking .leg-front .shin { animation: tedy-shin var(--step) ease-in-out infinite; }
+.tedy.is-walking .leg-back .thigh { animation: tedy-thigh var(--step) ease-in-out infinite calc(var(--step) * -0.5); }
+.tedy.is-walking .leg-back .shin { animation: tedy-shin var(--step) ease-in-out infinite calc(var(--step) * -0.5); }
+.tedy.is-walking .arm-front .upper { animation: tedy-upper var(--step) ease-in-out infinite; }
+.tedy.is-walking .arm-front .fore { animation: tedy-fore var(--step) ease-in-out infinite; }
+.tedy.is-walking .arm-back .upper { animation: tedy-upper var(--step) ease-in-out infinite calc(var(--step) * -0.5); }
+.tedy.is-walking .arm-back .fore { animation: tedy-fore var(--step) ease-in-out infinite calc(var(--step) * -0.5); }
 .tedy.is-walking .body { animation: tedy-bob calc(var(--step) * 0.5) ease-in-out infinite; }
 .tedy.is-idle .body { animation: tedy-breathe 3.4s ease-in-out infinite; }
-.tedy.is-pointing .arm-front { transform: rotate(-108deg); }
-.tedy.is-sitting .body { transform: translateY(100px); }
-.tedy.is-sitting .leg-front { transform: rotate(-84deg); }
-.tedy.is-sitting .leg-back { transform: rotate(-78deg); }
-.tedy.is-sitting .arm-front { transform: rotate(-30deg); }
+
+.tedy.is-pointing .arm-front .upper { transform: rotate(-100deg); }
+.tedy.is-pointing .arm-front .fore { transform: rotate(-6deg); }
+.tedy.is-pointing .finger { opacity: 1; }
+.tedy.is-pointing .head { transform: rotate(-4deg); }
+
+.tedy.is-sitting .seat { opacity: 1; }
+.tedy.is-sitting .body { transform: translateY(52px); }
+.tedy.is-sitting .thigh { transform: rotate(-86deg); }
+.tedy.is-sitting .shin { transform: rotate(86deg); }
+.tedy.is-sitting .upper { transform: rotate(-38deg); }
+.tedy.is-sitting .fore { transform: rotate(-52deg); }
 .tedy.is-swapping { animation: tedy-swap 0.35s ease; }
 
-@keyframes tedy-leg {
-  0%, 100% { transform: rotate(24deg); }
+@keyframes tedy-thigh {
+  0%, 100% { transform: rotate(22deg); }
   50% { transform: rotate(-24deg); }
 }
-@keyframes tedy-arm {
-  0%, 100% { transform: rotate(-20deg); }
+@keyframes tedy-shin {
+  0% { transform: rotate(8deg); }
+  20% { transform: rotate(48deg); }
+  45% { transform: rotate(6deg); }
+  70% { transform: rotate(2deg); }
+  100% { transform: rotate(8deg); }
+}
+@keyframes tedy-upper {
+  0%, 100% { transform: rotate(-22deg); }
   50% { transform: rotate(20deg); }
+}
+@keyframes tedy-fore {
+  0%, 100% { transform: rotate(-28deg); }
+  50% { transform: rotate(-8deg); }
 }
 @keyframes tedy-bob {
   0%, 100% { transform: translateY(0); }
@@ -99,6 +127,10 @@
 @keyframes tedy-breathe {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-1px); }
+}
+@keyframes tedy-blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
 }
 @keyframes tedy-swap {
   0% { opacity: 1; }

@@ -1,0 +1,96 @@
+---
+// src/components/ScrollBall.astro
+import '../styles/scrollball.css';
+---
+<div class="sb" data-sb transition:persist="scroll-ball" aria-hidden="true">
+  <span class="sb-track" data-sb-track></span>
+  <span class="sb-ball" data-sb-ball>
+    <svg viewBox="0 0 24 24">
+      <defs>
+        <clipPath id="sb-clip"><circle cx="12" cy="12" r="10" /></clipPath>
+      </defs>
+      <circle cx="12" cy="12" r="10" fill="#f4f2ec" />
+      <g clip-path="url(#sb-clip)" fill="#141414">
+        <polygon points="12,7.8 15.99,10.7 14.47,15.4 9.53,15.4 8.01,10.7" />
+        <circle cx="17.05" cy="5.04" r="2.1" />
+        <circle cx="20.18" cy="14.66" r="2.1" />
+        <circle cx="12" cy="20.6" r="2.1" />
+        <circle cx="3.82" cy="14.66" r="2.1" />
+        <circle cx="6.95" cy="5.04" r="2.1" />
+      </g>
+      <g stroke="#141414" stroke-width="0.7">
+        <line x1="12" y1="7.8" x2="12" y2="2" />
+        <line x1="15.99" y1="10.7" x2="21.51" y2="8.91" />
+        <line x1="14.47" y1="15.4" x2="17.88" y2="20.09" />
+        <line x1="9.53" y1="15.4" x2="6.12" y2="20.09" />
+        <line x1="8.01" y1="10.7" x2="2.49" y2="8.91" />
+      </g>
+      <circle cx="12" cy="12" r="10" fill="none" stroke="#141414" stroke-width="0.8" />
+    </svg>
+  </span>
+</div>
+
+<script>
+  function initBall() {
+    const sb = document.querySelector<HTMLElement>('[data-sb]');
+    if (!sb || sb.dataset.bound) return;
+    sb.dataset.bound = '1';
+    const track = sb.querySelector<HTMLElement>('[data-sb-track]')!;
+    const ball = sb.querySelector<HTMLElement>('[data-sb-ball]')!;
+    let dragging = false;
+    let ticking = false;
+
+    const max = () => document.documentElement.scrollHeight - window.innerHeight;
+
+    function paint() {
+      ticking = false;
+      const m = max();
+      sb!.classList.toggle('is-off', m < 8);
+      const p = m > 0 ? window.scrollY / m : 0;
+      const size = ball.offsetHeight;
+      const room = track.clientHeight - size;
+      const y = p * room;
+      const deg = (y / (size / 2)) * 57.2958;
+      ball.style.transform = `translate3d(0, ${y}px, 0) rotate(${deg}deg)`;
+    }
+
+    const request = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(paint);
+    };
+
+    function scrollFromPointer(clientY: number) {
+      const r = track.getBoundingClientRect();
+      const size = ball.offsetHeight;
+      const p = Math.min(Math.max((clientY - r.top - size / 2) / (r.height - size), 0), 1);
+      window.scrollTo(0, p * max());
+    }
+
+    ball.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      ball.setPointerCapture(e.pointerId);
+      sb!.classList.add('is-drag');
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    ball.addEventListener('pointermove', (e) => {
+      if (dragging) scrollFromPointer(e.clientY);
+    });
+    const end = () => {
+      dragging = false;
+      sb!.classList.remove('is-drag');
+    };
+    ball.addEventListener('pointerup', end);
+    ball.addEventListener('pointercancel', end);
+    track.addEventListener('pointerdown', (e) => scrollFromPointer(e.clientY));
+
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', request);
+    document.addEventListener('astro:page-load', request);
+    request();
+  }
+
+  initBall();
+  document.addEventListener('astro:page-load', initBall);
+</script>
