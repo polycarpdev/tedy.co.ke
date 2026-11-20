@@ -1,0 +1,32 @@
+---
+// src/components/Icon.astro
+interface Props {
+  name: string;
+  size?: string;
+  class?: string;
+  label?: string;
+}
+
+const { name, size = '1.25em', class: className, label } = Astro.props;
+const base = '/node_modules/@phosphor-icons/core/assets/light';
+const icons = import.meta.glob<string>(
+  '/node_modules/@phosphor-icons/core/assets/light/*.svg',
+  { query: '?raw', import: 'default' }
+);
+const loader = icons[`${base}/${name}-light.svg`];
+if (!loader) throw new Error(`Icon not found: ${name}`);
+const raw = await loader();
+const inner = raw.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 256 256"
+  width={size}
+  height={size}
+  fill="currentColor"
+  class={className}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  set:html={inner}
+/>

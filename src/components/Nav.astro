@@ -1,0 +1,77 @@
+---
+// src/components/Nav.astro
+import Icon from './Icon.astro';
+import '../styles/nav.css';
+
+const links = [
+  { href: '/', label: 'The Trail', n: '01' },
+  { href: '/story/', label: 'His Story', n: '02' },
+  { href: '/lens/', label: 'Through the Lens', n: '03' },
+  { href: '/studio/', label: 'The Studio', n: '04' },
+  { href: '/campfire/', label: 'The Campfire', n: '05' },
+];
+---
+<header class="site-header" transition:persist="site-header">
+  <a href="/" class="site-mark" aria-label="Tedy, home">
+    <span class="site-mark-name">Tedy</span>
+    <span class="site-mark-years">1999 — 2026</span>
+  </a>
+  <button type="button" class="menu-btn" data-menu-open aria-haspopup="dialog">
+    Menu <Icon name="list" />
+  </button>
+</header>
+
+<dialog class="menu" data-menu aria-label="Menu" transition:persist="site-menu">
+  <div class="menu-inner">
+    <div class="menu-top">
+      <button type="button" class="menu-close" data-menu-close>
+        Close <Icon name="x" />
+      </button>
+    </div>
+    <nav aria-label="Main">
+      <ol class="menu-list">
+        {links.map((l) => (
+          <li>
+            <a href={l.href} class="menu-link" data-nav-link>
+              <span class="menu-n">{l.n}</span>
+              <span class="menu-label">{l.label}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+    <p class="menu-foot">Thadeus Esirom Etyang · 07.07.1999 — 11.11.2026</p>
+  </div>
+</dialog>
+
+<script>
+  function setup() {
+    const dialog = document.querySelector<HTMLDialogElement>('[data-menu]');
+    const open = document.querySelector('[data-menu-open]');
+    const close = document.querySelector('[data-menu-close]');
+    if (!dialog || !open || !close || dialog.dataset.bound) return;
+    dialog.dataset.bound = '1';
+    open.addEventListener('click', () => dialog.showModal());
+    close.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+
+  function markActive() {
+    const path = location.pathname;
+    document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]').forEach((a) => {
+      if (a.getAttribute('href') === path) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    setup();
+    markActive();
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    document.querySelector<HTMLDialogElement>('[data-menu]')?.close();
+  });
+</script>
