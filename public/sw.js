@@ -1,5 +1,5 @@
 // public/sw.js
-const VERSION = 'tedy-v1';
+const VERSION = 'tedy-v2';
 const PAGES = ['/', '/story/', '/lens/', '/studio/', '/campfire/', '/404.html'];
 
 self.addEventListener('install', (event) => {
@@ -22,7 +22,7 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin !== location.origin || url.pathname.startsWith('/api/')) return;
+  if (url.origin !== location.origin || url.pathname.startsWith('/api/') || url.pathname.startsWith('/admin')) return;
 
   if (url.pathname.startsWith('/_astro/')) {
     event.respondWith(cacheFirst(request));

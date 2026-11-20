@@ -10,8 +10,15 @@ export default defineConfig({
   trailingSlash: 'always',
   integrations: [
     react(),
-    sitemap({ filter: (page) => !page.includes('404') }),
+    sitemap({ filter: (page) => !page.includes('404') && !page.includes('/admin') }),
   ],
   prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
-  vite: { plugins: [tailwindcss()] },
+  vite: {
+    plugins: [tailwindcss()],
+    server: {
+      proxy: {
+        '/api': { target: 'https://tedy.co.ke', changeOrigin: true, secure: true },
+      },
+    },
+  },
 });
