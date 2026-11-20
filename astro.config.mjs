@@ -18,6 +18,7 @@ export default defineConfig({
     server: {
       proxy: {
         '/api': { target: 'https://tedy.co.ke', changeOrigin: true, secure: true },
+        '/media': { target: 'https://tedy.co.ke', changeOrigin: true, secure: true },
       },
     },
   },

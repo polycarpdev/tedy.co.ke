@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { pool } from '../db.mjs';
 import { requireAdmin } from '../auth.mjs';
+import { stops } from './stops.mjs';
 
 export const admin = Router();
 admin.use(requireAdmin);
@@ -38,3 +39,5 @@ admin.post('/notifications/:id/read', async (req, res) => {
   );
   res.json({ ok: true });
 });
+
+admin.use(stops);

@@ -5,6 +5,16 @@ import squares from '@phosphor-icons/core/assets/light/squares-four-light.svg?ra
 import trail from '@phosphor-icons/core/assets/light/path-light.svg?raw';
 import chat from '@phosphor-icons/core/assets/light/chat-circle-text-light.svg?raw';
 import open from '@phosphor-icons/core/assets/light/arrow-square-out-light.svg?raw';
+import plus from '@phosphor-icons/core/assets/light/plus-light.svg?raw';
+import trash from '@phosphor-icons/core/assets/light/trash-light.svg?raw';
+import up from '@phosphor-icons/core/assets/light/caret-up-light.svg?raw';
+import down from '@phosphor-icons/core/assets/light/caret-down-light.svg?raw';
+import left from '@phosphor-icons/core/assets/light/caret-left-light.svg?raw';
+import right from '@phosphor-icons/core/assets/light/caret-right-light.svg?raw';
+import star from '@phosphor-icons/core/assets/light/star-light.svg?raw';
+import close from '@phosphor-icons/core/assets/light/x-light.svg?raw';
+import uploadIcon from '@phosphor-icons/core/assets/light/upload-simple-light.svg?raw';
+import image from '@phosphor-icons/core/assets/light/image-light.svg?raw';
 
 const icons = {
   bell,
@@ -13,6 +23,16 @@ const icons = {
   stops: trail,
   condolences: chat,
   open,
+  plus,
+  trash,
+  up,
+  down,
+  left,
+  right,
+  star,
+  x: close,
+  upload: uploadIcon,
+  image,
 };
 
 export type IconName = keyof typeof icons;

@@ -4,6 +4,7 @@ import { api, type Admin } from './api';
 import { Icon, type IconName } from './Icon';
 import { Bell } from './Bell';
 import { Overview } from './Overview';
+import { Stops } from './Stops';
 
 const TABS: { id: string; label: string; icon: IconName }[] = [
   { id: 'overview', label: 'Overview', icon: 'overview' },
@@ -57,18 +58,14 @@ export function Shell({ admin, onSignOut }: { admin: Admin; onSignOut: () => voi
       </header>
       <main className="ad-main">
         {tab === 'overview' && <Overview admin={admin} />}
-        {tab === 'stops' && <Soon title="Stops" />}
-        {tab === 'condolences' && <Soon title="Condolences" />}
+        {tab === 'stops' && <Stops />}
+        {tab === 'condolences' && (
+          <>
+            <div className="ad-h"><h2>Condolences</h2></div>
+            <div className="ad-card ad-muted">Coming in a later step.</div>
+          </>
+        )}
       </main>
-    </>
-  );
-}
-
-function Soon({ title }: { title: string }) {
-  return (
-    <>
-      <div className="ad-h"><h2>{title}</h2></div>
-      <div className="ad-card ad-muted">Coming in the next step.</div>
     </>
   );
 }
