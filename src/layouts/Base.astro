@@ -6,25 +6,27 @@ import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
+import Seo from '../components/Seo.astro';
 
 interface Props {
   title: string;
   description: string;
+  image?: string;
 }
 
-const { title, description } = Astro.props;
-const fullTitle = title === 'Tedy' ? 'Tedy — Thadeus Esirom Etyang' : `${title} — Tedy`;
+const { title, description, image } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="robots" content="noindex" />
-    <meta name="description" content={description} />
+    <Seo title={title} description={description} image={image} />
     <meta name="theme-color" content="#07090c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="author" href="/humans.txt" />
-    <title>{fullTitle}</title>
     <ClientRouter />
   </head>
   <body>
@@ -33,5 +35,10 @@ const fullTitle = title === 'Tedy' ? 'Tedy — Thadeus Esirom Etyang' : `${title
     <main id="main" transition:animate="fade">
       <slot />
     </main>
+    <script>
+      if ('serviceWorker' in navigator && import.meta.env.PROD) {
+        navigator.serviceWorker.register('/sw.js');
+      }
+    </script>
   </body>
 </html>
