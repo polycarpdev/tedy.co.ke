@@ -221,10 +221,12 @@ export function initTrail(root: HTMLElement): () => void {
     if (!moved && progress() > 0.004) markMoved();
 
     let tease = 0;
-    if (atState === 'start' && !openSlug && current < 1 && now - lastInteract > 1800) {
-      const k = (now - lastInteract - 1800) % 3600;
-      if (k < 0) tease = 0;
+    let peek = 0;
+    if (atState === 'start' && !openSlug && current < 1 && now - lastInteract > 1500) {
+      const k = (now - lastInteract - 1500) % 4500;
+      if (k < 2200) peek = Math.sin((k / 2200) * Math.PI) * W * 0.2;
     }
+    if (slides[1]) slides[1].style.translate = peek ? `${(-peek).toFixed(1)}px 0` : '';
     const view = current + tease;
 
     world.style.transform = `translate3d(${-view}px, 0, 0)`;

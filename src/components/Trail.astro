@@ -117,19 +117,6 @@ const data = JSON.stringify(
       ))}
     </div>
 
-    {stops[0] && (
-      <button class="peek" type="button" data-step="1" aria-label={`Next: ${stops[0].title}`}>
-        <span class="peek-print">
-          {stops[0].cover ? (
-            <Photo photo={stops[0].cover} sizes="10rem" eager />
-          ) : (
-            <span class="peek-empty">{yearText(stops[0])}</span>
-          )}
-        </span>
-        <span class="peek-label"><b>01</b> {stops[0].title}</span>
-      </button>
-    )}
-
     <button class="nav-arrow nav-prev" type="button" data-step="-1" aria-label="Previous stop">
       <Icon name="caret-left" />
     </button>

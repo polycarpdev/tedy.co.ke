@@ -840,3 +840,5 @@ html.is-paused { overflow: hidden; }
   .peek-print { width: 10rem; }
   .peek-label { font-size: 0.7rem; }
 }
+
+.trail[data-at="start"] .nav-next { opacity: 1; pointer-events: auto; animation: none; }
