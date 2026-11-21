@@ -558,3 +558,5 @@ html.is-paused { overflow: hidden; }
   .stop-title { font-size: 3.5rem; }
   .stop-photo { height: 56svh; }
 }
+
+.tedy-wrap { will-change: transform; }

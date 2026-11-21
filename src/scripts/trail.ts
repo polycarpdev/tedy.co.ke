@@ -38,6 +38,9 @@ export function initTrail(root: HTMLElement): () => void {
   const total = n * UNIT;
   let W = 0;
   let charH = 0;
+  let charW = 0;
+  let charL = 0;
+  let charR = 0;
   let top = 0;
   let scrollLen = 0;
   let current = 0;
@@ -63,6 +66,9 @@ export function initTrail(root: HTMLElement): () => void {
   function layout() {
     W = stage.clientWidth;
     charH = tedyWrap.offsetHeight;
+    charW = tedyWrap.offsetWidth;
+    charL = parseFloat(getComputedStyle(tedyWrap).left) || 0;
+    charR = parseFloat(getComputedStyle(document.documentElement).fontSize) * (W >= 1024 ? 4.5 : 2.75);
     slides.forEach((s, i) => {
       s.style.left = `${i * W}px`;
       s.style.width = `${W}px`;
@@ -200,9 +206,14 @@ export function initTrail(root: HTMLElement): () => void {
     });
     paintSky(stage, f);
 
+    const along = clamp(current / (W * n || 1), 0, 1);
+    const range = Math.max(0, W - charW - charL - charR);
+    tedyWrap.style.transform = `translate3d(${(along * range).toFixed(1)}px, 0, 0)`;
+    const ground = Math.abs(dx) * (range / (W * n || 1));
+
     if (Math.abs(dx) > 0.3) {
       lastMove = now;
-      const dur = clamp((charH * 2.4) / (Math.abs(dx) * 60), 0.28, 1);
+      const dur = clamp((charH * 0.55) / (Math.max(ground, 0.05) * 60), 0.3, 1.1);
       if (!stepDur || Math.abs(dur - stepDur) / stepDur > 0.15) {
         stepDur = dur;
         tedy.style.setProperty('--step', `${dur}s`);
@@ -217,7 +228,7 @@ export function initTrail(root: HTMLElement): () => void {
       tedy.classList.toggle('is-sitting', atStop && atEnd);
       tedy.classList.toggle('is-pointing', atStop && !atEnd);
       tedy.classList.toggle('is-idle', !atStop);
-      if (atStop) tedy.classList.remove('is-left');
+      if (atStop) tedy.classList.toggle('is-left', atEnd);
     }
 
     const nearest = clamp(Math.round(pos), 0, n - 1);
