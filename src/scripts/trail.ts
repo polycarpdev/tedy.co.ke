@@ -241,7 +241,7 @@ export function initTrail(root: HTMLElement): () => void {
       let d = clamp(k - view / (W || 1), -1.5, 1.5);
       if (k === 1) {
         if (peek) d *= 1 - peek * 0.85;
-        s.style.translate = peek ? `${(-peek * W * 0.22).toFixed(1)}px 0` : '';
+        s.style.translate = peek ? `${(-peek * W * (W < 768 ? 0.3 : 0.38)).toFixed(1)}px 0` : '';
         s.classList.toggle('is-peeking', peek > 0.4);
       }
       s.style.setProperty('--d', d.toFixed(3));
