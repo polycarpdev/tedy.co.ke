@@ -71,14 +71,17 @@ const data = JSON.stringify(
               class="stop-photo"
               type="button"
               data-open={s.slug}
+              data-ar={s.cover ? (s.cover.width / (s.cover.height || 1)).toFixed(4) : "0.8"}
               aria-label={`Open ${s.title}`}
               style={`--tilt:${i % 2 ? 2 : -2}deg`}
             >
-              {s.cover ? (
-                <Photo photo={s.cover} sizes="(min-width: 1024px) 42rem, 92vw" eager={i < 2} />
-              ) : (
-                <span class="stop-photo-empty">{yearText(s)}</span>
-              )}
+              <span class="print" data-print>
+                {s.cover ? (
+                  <Photo photo={s.cover} sizes="(min-width: 1024px) 42rem, 92vw" eager={i < 2} />
+                ) : (
+                  <span class="stop-photo-empty">{yearText(s)}</span>
+                )}
+              </span>
             </button>
             <div class="stop-text">
               <p class="stop-meta">

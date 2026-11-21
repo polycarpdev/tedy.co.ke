@@ -248,3 +248,14 @@ html.vf-open { overflow: hidden; }
   .tile { margin-bottom: 0.6rem; }
 }
 @media (min-width: 1600px) { .grid { columns: 5; } }
+
+.vf-stage { display: block; }
+.vf-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}

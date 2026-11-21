@@ -89,6 +89,27 @@ export function initTrail(root: HTMLElement): () => void {
     });
     top = root.getBoundingClientRect().top + window.scrollY;
     scrollLen = root.offsetHeight - window.innerHeight;
+    fitPrints();
+  }
+
+  function fitPrints() {
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const padX = rem * 0.9;
+    const padY = rem * 1.95;
+    root.querySelectorAll<HTMLElement>('[data-print]').forEach((print) => {
+      const box = print.parentElement as HTMLElement;
+      const ar = Number(box.dataset.ar) || 0.8;
+      const maxW = Math.max(0, box.clientWidth - padX);
+      const maxH = Math.max(0, box.clientHeight - padY);
+      let w = maxW;
+      let h = w / ar;
+      if (h > maxH) {
+        h = maxH;
+        w = h * ar;
+      }
+      print.style.width = `${Math.round(w + padX)}px`;
+      print.style.height = `${Math.round(h + padY)}px`;
+    });
   }
 
   const progress = () => (scrollLen > 0 ? clamp((window.scrollY - top) / scrollLen, 0, 1) : 0);
@@ -360,6 +381,7 @@ export function initTrail(root: HTMLElement): () => void {
   const onTap = () => say(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
 
   layout();
+  document.fonts?.ready.then(() => layout());
   root.dataset.ready = '';
   const stopCandles = initCandles(root, renderStars);
   window.addEventListener('resize', layout);
