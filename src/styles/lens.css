@@ -46,7 +46,7 @@
 .chip span { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-muted); }
 .chip[aria-pressed="true"] { border-color: var(--color-red); background: #2a0f0c; }
 
-.grid { columns: 2; column-gap: 0.4rem; }
+.lens-wall { columns: 2; column-gap: 0.4rem; }
 .tile {
   position: relative;
   display: block;
@@ -239,15 +239,15 @@ html.vf-open { overflow: hidden; }
   .vf-prev { left: 0.6rem; }
   .vf-next { right: 0.6rem; }
 }
-@media (min-width: 640px) { .grid { columns: 3; } }
+@media (min-width: 640px) { .lens-wall { columns: 3; } }
 @media (min-width: 1024px) {
   .lens { padding: 8rem 2.5rem 5rem; }
   .lens-head, .chips { padding-inline: 0; }
   .lens h1 { font-size: 7rem; }
-  .grid { columns: 4; column-gap: 0.6rem; }
+  .lens-wall { columns: 4; column-gap: 0.6rem; }
   .tile { margin-bottom: 0.6rem; }
 }
-@media (min-width: 1600px) { .grid { columns: 5; } }
+@media (min-width: 1600px) { .lens-wall { columns: 5; } }
 
 .vf-stage { display: block; }
 .vf-img {
