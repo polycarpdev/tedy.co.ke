@@ -842,3 +842,5 @@ html.is-paused { overflow: hidden; }
 }
 
 .trail[data-at="start"] .nav-next { opacity: 1; pointer-events: auto; animation: none; }
+
+.trail[data-ready] .slide.is-peeking .stop-text > * { opacity: 1; transform: none; }
