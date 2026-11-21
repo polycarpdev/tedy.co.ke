@@ -1,11 +1,16 @@
 // src/scripts/trail.ts
 import { paintSky, resetSky } from './sky';
+import { initCandles } from './candle';
 
-type Stop = { year: number; outfit: string; accessory: string };
+type Stop = { slug: string; year: string; outfit: string; accessory: string };
 
 const WALK = 1;
-const DWELL = 0.7;
+const DWELL = 0.8;
+const UNIT = WALK + DWELL;
 const PHRASES = ['Yooo', 'We mzee', 'Niaje bro'];
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const clamp = (v: number, a: number, b: number) => Math.min(Math.max(v, a), b);
+const pad = (i: number) => String(i).padStart(2, '0');
 
 export function initTrail(root: HTMLElement): () => void {
   const stops: Stop[] = JSON.parse(root.dataset.stops || '[]');
@@ -16,79 +21,70 @@ export function initTrail(root: HTMLElement): () => void {
   const stage = q<HTMLElement>('[data-stage]');
   const world = q<HTMLElement>('[data-world]');
   const clouds = q<HTMLElement>('[data-clouds]');
-  const hero = q<HTMLElement>('[data-hero]');
-  const wrap = q<HTMLElement>('[data-tedy-wrap]');
+  const sky = q<SVGSVGElement>('[data-sky]');
   const tedy = q<SVGSVGElement>('[data-tedy]');
+  const tedyWrap = q<HTMLElement>('[data-tedy-wrap]');
+  const tedyBtn = q<HTMLElement>('[data-tedy-btn]');
   const bubble = q<HTMLElement>('[data-bubble]');
-  const btn = q<HTMLElement>('[data-tedy-btn]');
   const yearEl = q<HTMLElement>('[data-year]');
-  const fill = q<HTMLElement>('[data-fill]');
-  const posts = qa<HTMLElement>('[data-post]');
+  const countEl = q<HTMLElement>('[data-count]');
+  const sheet = q<HTMLDialogElement>('[data-sheet]');
+  const sheetBody = q<HTMLElement>('[data-sheet-body]');
+  const slides = qa<HTMLElement>('[data-slide]');
   const ridges = qa<HTMLElement>('[data-ridge]');
-  const chapters = qa<HTMLElement>('[data-chapter]');
-  const dots = qa<HTMLButtonElement>('[data-jump]');
+  const dots = qa<HTMLElement>('[data-jump]');
+  const chapters = qa<HTMLTemplateElement>('template[data-chapter]');
 
-  const unit = WALK + DWELL;
-  const total = n * unit;
-  let stageW = 0;
-  let spacing = 0;
-  let charX = 0;
+  const total = n * UNIT;
+  let W = 0;
   let charH = 0;
   let top = 0;
   let scrollLen = 0;
   let current = 0;
   let raf = 0;
   let lastMove = 0;
-  let active = -2;
+  let activeSlide = -1;
   let outfitIndex = -1;
+  let shownIndex = -1;
   let stepDur = 0;
-  let shownYear = -1;
   let bubbleTimer = 0;
   let greetTimer = 0;
+  let openSlug: string | null = null;
+  let pushedHash = false;
+  let touchX = 0;
+  let touchY = 0;
+  const candleStars: SVGCircleElement[] = [];
 
   resetSky();
 
   function layout() {
-    stageW = stage.clientWidth;
-    spacing = Math.max(stageW * 0.8, 320);
-    charX = stageW * (stageW < 768 ? 0.26 : 0.3);
-    charH = wrap.offsetHeight;
-    wrap.style.left = `${charX}px`;
-    posts.forEach((p, i) => {
-      p.style.left = `${(i + 1) * spacing + stageW * 0.16}px`;
+    W = stage.clientWidth;
+    charH = tedyWrap.offsetHeight;
+    slides.forEach((s, i) => {
+      s.style.left = `${i * W}px`;
+      s.style.width = `${W}px`;
     });
     top = root.getBoundingClientRect().top + window.scrollY;
     scrollLen = root.offsetHeight - window.innerHeight;
   }
 
-  function progress() {
-    if (scrollLen <= 0) return 0;
-    return Math.min(Math.max((window.scrollY - top) / scrollLen, 0), 1);
-  }
+  const progress = () => (scrollLen > 0 ? clamp((window.scrollY - top) / scrollLen, 0, 1) : 0);
 
-  function sample(p: number) {
+  function target(p: number) {
     const u = p * total;
-    const i = Math.min(Math.floor(u / unit), n - 1);
-    const local = u - i * unit;
-    const to = (i + 1) * spacing;
-    if (local < WALK) {
-      const t = local / WALK;
-      const prevYear = stops[Math.max(i - 1, 0)].year;
-      return {
-        x: i * spacing + spacing * t,
-        stop: -1,
-        toward: i,
-        t,
-        u,
-        year: prevYear + (stops[i].year - prevYear) * t,
-      };
-    }
-    return { x: to, stop: i, toward: i, t: 1, u, year: stops[i].year };
+    const i = Math.min(Math.floor(u / UNIT), n - 1);
+    const local = u - i * UNIT;
+    if (local < WALK) return { x: (i + local / WALK) * W, stop: -1 };
+    return { x: (i + 1) * W, stop: i };
   }
 
-  function scrollToStop(i: number) {
-    const u = i * unit + WALK + DWELL * 0.25;
-    window.scrollTo({ top: top + (u / total) * scrollLen, behavior: 'smooth' });
+  function scrollToStop(i: number, behavior: ScrollBehavior = 'smooth') {
+    if (i < 0) {
+      window.scrollTo({ top, behavior });
+      return;
+    }
+    const u = i * UNIT + WALK + DWELL * 0.3;
+    window.scrollTo({ top: top + (u / total) * scrollLen, behavior });
   }
 
   function say(text: string, ms = 2200) {
@@ -99,7 +95,7 @@ export function initTrail(root: HTMLElement): () => void {
   }
 
   function setOutfit(i: number) {
-    if (i === outfitIndex) return;
+    if (i === outfitIndex || !stops[i]) return;
     const first = outfitIndex === -1;
     outfitIndex = i;
     tedy.dataset.outfit = stops[i].outfit;
@@ -110,25 +106,62 @@ export function initTrail(root: HTMLElement): () => void {
     tedy.classList.add('is-swapping');
   }
 
-  function setActive(i: number) {
-    if (i === active) return;
-    active = i;
-    chapters.forEach((c, k) => c.classList.toggle('is-active', k === i));
-    posts.forEach((p, k) => p.classList.toggle('is-active', k === i));
+  function renderStars(count: number) {
+    const want = Math.min(count, 300);
+    for (let k = candleStars.length; k < want; k++) {
+      let s = ((k + 1) * 9301) % 233280;
+      const r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+      const c = document.createElementNS(SVG_NS, 'circle');
+      c.setAttribute('cx', `${(r() * 100).toFixed(2)}%`);
+      c.setAttribute('cy', `${(r() * 56).toFixed(2)}%`);
+      c.setAttribute('r', (r() * 0.9 + 0.7).toFixed(2));
+      c.setAttribute('class', 'candle-star');
+      c.style.animationDelay = `-${(r() * 4).toFixed(2)}s`;
+      sky.appendChild(c);
+      candleStars.push(c);
+    }
+  }
+
+  function openChapter(slug: string, fromHash = false) {
+    const tpl = chapters.find((c) => c.dataset.chapter === slug);
+    if (!tpl) return;
+    sheetBody.replaceChildren(tpl.content.cloneNode(true));
+    sheet.scrollTop = 0;
+    if (!sheet.open) sheet.showModal();
+    document.documentElement.classList.add('is-paused');
+    openSlug = slug;
+    if (!fromHash) {
+      pushedHash = true;
+      location.hash = `stop/${slug}`;
+    }
+  }
+
+  function closeChapter(fromHash = false) {
+    if (!openSlug) return;
+    openSlug = null;
+    if (sheet.open) sheet.close();
+    document.documentElement.classList.remove('is-paused');
+    sheetBody.replaceChildren();
+    if (fromHash) return;
+    if (pushedHash) {
+      pushedHash = false;
+      history.back();
+    } else if (location.hash) {
+      history.replaceState(history.state, '', location.pathname + location.search);
+    }
   }
 
   function frame(now: number) {
-    const s = sample(progress());
+    const t = target(progress());
     const prev = current;
-    current += (s.x - current) * 0.16;
-    if (Math.abs(s.x - current) < 0.5) current = s.x;
+    current += (t.x - current) * 0.14;
+    if (Math.abs(t.x - current) < 0.5) current = t.x;
     const dx = current - prev;
-    const speed = Math.abs(dx);
-    const pos = current / spacing - 1;
-    const f = Math.min(Math.max(pos / (n - 1), 0), 1);
+    const pos = W ? current / W - 1 : -1;
+    const f = clamp(pos / Math.max(n - 1, 1), 0, 1);
 
-    world.style.transform = `translate3d(${charX - current}px, 0, 0)`;
-    clouds.style.transform = `translate3d(${-current * 0.05}px, 0, 0)`;
+    world.style.transform = `translate3d(${-current}px, 0, 0)`;
+    clouds.style.transform = `translate3d(${-current * 0.04}px, 0, 0)`;
     ridges.forEach((r) => {
       const v = `${-current * Number(r.dataset.ridge)}px 0`;
       r.style.setProperty('-webkit-mask-position', v);
@@ -136,10 +169,10 @@ export function initTrail(root: HTMLElement): () => void {
     });
     paintSky(stage, f);
 
-    if (speed > 0.25) {
+    if (Math.abs(dx) > 0.3) {
       lastMove = now;
-      const dur = Math.min(Math.max((charH * 0.6) / (speed * 60), 0.25), 1.1);
-      if (!stepDur || Math.abs(dur - stepDur) / stepDur > 0.12) {
+      const dur = clamp((charH * 2.4) / (Math.abs(dx) * 60), 0.28, 1);
+      if (!stepDur || Math.abs(dur - stepDur) / stepDur > 0.15) {
         stepDur = dur;
         tedy.style.setProperty('--step', `${dur}s`);
       }
@@ -147,63 +180,150 @@ export function initTrail(root: HTMLElement): () => void {
       tedy.classList.remove('is-idle', 'is-pointing', 'is-sitting');
       tedy.classList.toggle('is-left', dx < 0);
     } else if (now - lastMove > 140) {
-      const atStop = s.stop >= 0 && current === s.x;
-      const last = s.stop === n - 1;
+      const atStop = t.stop >= 0 && current === t.x;
+      const atEnd = t.stop === n - 1;
       tedy.classList.remove('is-walking');
-      tedy.classList.toggle('is-sitting', atStop && last);
-      tedy.classList.toggle('is-pointing', atStop && !last);
+      tedy.classList.toggle('is-sitting', atStop && atEnd);
+      tedy.classList.toggle('is-pointing', atStop && !atEnd);
       tedy.classList.toggle('is-idle', !atStop);
       if (atStop) tedy.classList.remove('is-left');
     }
 
-    const outfitStop = s.stop >= 0 ? s.stop : s.t > 0.5 ? s.toward : Math.max(s.toward - 1, 0);
-    setOutfit(outfitStop);
-    setActive(s.stop);
+    const nearest = clamp(Math.round(pos), 0, n - 1);
+    setOutfit(nearest);
 
-    const year = Math.round(s.year);
-    if (year !== shownYear) {
-      shownYear = year;
-      yearEl.textContent = String(year);
+    const slide = clamp(Math.round(current / (W || 1)), 0, slides.length - 1);
+    if (slide !== activeSlide) {
+      activeSlide = slide;
+      slides.forEach((s, k) => s.classList.toggle('is-active', k === slide));
     }
 
-    hero.style.opacity = String(Math.max(0, 1 - s.u / 0.4));
-    fill.style.width = `${f * 100}%`;
-    dots.forEach((d, k) => d.classList.toggle('is-passed', k <= pos + 0.001));
+    if (nearest !== shownIndex && stops[nearest]) {
+      shownIndex = nearest;
+      yearEl.textContent = stops[nearest].year;
+      countEl.textContent = `${pad(nearest + 1)} / ${pad(n)}`;
+    }
+    dots.forEach((d, k) => {
+      d.classList.toggle('is-passed', k <= pos + 0.001);
+      d.classList.toggle('is-current', k === nearest && pos > -0.5);
+    });
 
     raf = requestAnimationFrame(frame);
   }
 
+  function step(dir: 1 | -1) {
+    const pos = W ? current / W - 1 : -1;
+    const next = dir > 0 ? Math.floor(pos + 0.001) + 1 : Math.ceil(pos - 0.001) - 1;
+    scrollToStop(clamp(next, -1, n - 1));
+  }
+
+  const onClick = (e: MouseEvent) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-open],[data-resume],[data-begin],[data-jump]');
+    if (!el) return;
+    if (el.dataset.open) {
+      e.preventDefault();
+      openChapter(el.dataset.open);
+    } else if (el.hasAttribute('data-resume')) {
+      e.preventDefault();
+      closeChapter();
+    } else if (el.hasAttribute('data-begin')) {
+      scrollToStop(0);
+    } else if (el.dataset.jump !== undefined) {
+      scrollToStop(Number(el.dataset.jump));
+    }
+  };
+
   const onKey = (e: KeyboardEvent) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    if (openSlug || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
     const t = e.target as HTMLElement | null;
     if (t?.closest('input, textarea, [contenteditable]')) return;
     e.preventDefault();
-    const pos = current / spacing - 1;
-    const next = e.key === 'ArrowRight'
-      ? Math.min(n - 1, Math.floor(pos + 0.001) + 1)
-      : Math.max(0, Math.ceil(pos - 0.001) - 1);
-    scrollToStop(next);
+    step(e.key === 'ArrowRight' ? 1 : -1);
+  };
+
+  const onTouchStart = (e: TouchEvent) => {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  };
+
+  const onTouchEnd = (e: TouchEvent) => {
+    if (openSlug) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchX;
+    const dy = t.clientY - touchY;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    step(dx < 0 ? 1 : -1);
+  };
+
+  const onHash = () => {
+    const m = location.hash.match(/^#stop\/([\w-]+)$/);
+    if (m) {
+      if (openSlug !== m[1]) openChapter(m[1], true);
+    } else {
+      pushedHash = false;
+      closeChapter(true);
+    }
+  };
+
+  const onCancel = (e: Event) => {
+    e.preventDefault();
+    closeChapter();
+  };
+
+  const onBackdrop = (e: MouseEvent) => {
+    if (e.target === sheet) closeChapter();
+  };
+
+  const onCarousel = (e: Event) => {
+    const el = e.target as HTMLElement;
+    if (!el.matches?.('[data-carousel]')) return;
+    const counter = el.parentElement?.querySelector('[data-counter]');
+    if (counter) {
+      counter.textContent = `${Math.round(el.scrollLeft / (el.clientWidth || 1)) + 1} / ${el.children.length}`;
+    }
   };
 
   const onTap = () => say(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
-  const onDot = (e: Event) => scrollToStop(Number((e.currentTarget as HTMLElement).dataset.jump));
 
   layout();
   root.dataset.ready = '';
+  const stopCandles = initCandles(root, renderStars);
   window.addEventListener('resize', layout);
   window.addEventListener('keydown', onKey);
-  btn.addEventListener('click', onTap);
-  dots.forEach((d) => d.addEventListener('click', onDot));
+  window.addEventListener('hashchange', onHash);
+  root.addEventListener('click', onClick);
+  stage.addEventListener('touchstart', onTouchStart, { passive: true });
+  stage.addEventListener('touchend', onTouchEnd, { passive: true });
+  sheet.addEventListener('cancel', onCancel);
+  sheet.addEventListener('click', onBackdrop);
+  sheet.addEventListener('scroll', onCarousel, true);
+  tedyBtn.addEventListener('click', onTap);
   raf = requestAnimationFrame(frame);
-  if (progress() < 0.02) greetTimer = window.setTimeout(() => say('Niaje bro', 2600), 900);
+
+  const deep = location.hash.match(/^#stop\/([\w-]+)$/);
+  const deepIndex = deep ? stops.findIndex((s) => s.slug === deep[1]) : -1;
+  if (deep && deepIndex >= 0) {
+    scrollToStop(deepIndex, 'instant' as ScrollBehavior);
+    openChapter(deep[1], true);
+  } else if (progress() < 0.02) {
+    greetTimer = window.setTimeout(() => say('Niaje bro', 2600), 1200);
+  }
 
   return () => {
     cancelAnimationFrame(raf);
     clearTimeout(bubbleTimer);
     clearTimeout(greetTimer);
+    stopCandles();
+    closeChapter(true);
     window.removeEventListener('resize', layout);
     window.removeEventListener('keydown', onKey);
-    btn.removeEventListener('click', onTap);
-    dots.forEach((d) => d.removeEventListener('click', onDot));
+    window.removeEventListener('hashchange', onHash);
+    root.removeEventListener('click', onClick);
+    stage.removeEventListener('touchstart', onTouchStart);
+    stage.removeEventListener('touchend', onTouchEnd);
+    sheet.removeEventListener('cancel', onCancel);
+    sheet.removeEventListener('click', onBackdrop);
+    sheet.removeEventListener('scroll', onCarousel, true);
+    tedyBtn.removeEventListener('click', onTap);
   };
 }

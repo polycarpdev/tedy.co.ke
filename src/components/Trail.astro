@@ -3,25 +3,29 @@
 import Tedy from './Tedy.astro';
 import Icon from './Icon.astro';
 import Photo from './Photo.astro';
-import { getStops } from '../data/content';
+import { getStops, yearText } from '../data/content';
 import '../styles/trail.css';
 
 const stops = await getStops();
+const last = stops.length - 1;
+const pad = (i: number) => String(i + 1).padStart(2, '0');
+const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
 let seed = 7;
 const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-const stars = Array.from({ length: 90 }, () => ({
+const stars = Array.from({ length: 40 }, () => ({
   x: (rand() * 100).toFixed(2),
-  y: (rand() * 62).toFixed(2),
+  y: (rand() * 58).toFixed(2),
   r: (rand() * 1.1 + 0.3).toFixed(2),
   d: (rand() * 4).toFixed(2),
 }));
-const stopsData = JSON.stringify(stops.map(({ year, outfit, accessory }) => ({ year, outfit, accessory })));
-const pad = (i: number) => String(i + 1).padStart(2, '0');
+const data = JSON.stringify(
+  stops.map((s) => ({ slug: s.slug, year: yearText(s), outfit: s.outfit, accessory: s.accessory }))
+);
 ---
-<section class="trail" data-trail data-stops={stopsData} style={`--stops:${stops.length}`}>
+<section class="trail" data-trail data-stops={data} style={`--stops:${stops.length}`}>
   <div class="stage" data-stage>
-    <svg class="sky" aria-hidden="true">
+    <svg class="sky" data-sky aria-hidden="true">
       {stars.map((s) => (
         <circle cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} style={`animation-delay:-${s.d}s`} />
       ))}
@@ -34,75 +38,145 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
       <span class="cloud c3"></span>
       <span class="cloud c4"></span>
     </div>
-    <div class="ridge ridge-far" data-ridge="0.08" aria-hidden="true"></div>
-    <div class="ridge ridge-near" data-ridge="0.22" aria-hidden="true"></div>
+    <div class="ridge ridge-far" data-ridge="0.05" aria-hidden="true"></div>
+    <div class="ridge ridge-near" data-ridge="0.12" aria-hidden="true"></div>
 
-    <div class="world" data-world aria-hidden="true">
-      {stops.map((s, i) =>
-        i === stops.length - 1 ? (
-          <div class="fire" data-post>
-            <span class="flame"></span>
-            <span class="flame f2"></span>
-            <span class="flame f3"></span>
-            <span class="logs"></span>
+    <div class="world" data-world>
+      <div class="slide slide-hero" data-slide>
+        <div class="hero">
+          <p class="hero-eyebrow">Thadeus Esirom Etyang</p>
+          <h1 class="hero-name">Tedy</h1>
+          <p class="hero-dates">07.07.1999 <span>—</span> 11.11.2026</p>
+          <div class="candle" data-candle>
+            <span class="candle-art" aria-hidden="true"><span class="candle-flame"></span></span>
+            <span class="candle-text">
+              <span><b data-candle-count>–</b> candles lit for Tedy</span>
+              <button class="candle-btn" type="button" data-candle-btn>Light a candle</button>
+            </span>
           </div>
-        ) : (
-          <div class="post" data-post>
-            <span class="post-sign"><b>{pad(i)}</b>{s.year}</span>
-            <span class="post-pole"></span>
+          <div class="hero-actions">
+            <button class="btn" type="button" data-begin>Begin the walk <Icon name="arrow-right" /></button>
+            <a class="link" href="/eulogy/">Read the eulogy</a>
           </div>
-        )
-      )}
+          <p class="hero-hint"><Icon name="arrow-down" /> Scroll or swipe</p>
+        </div>
+      </div>
+
+      {stops.map((s, i) => (
+        <div class="slide" data-slide>
+          <article class="stop">
+            <button
+              class="stop-photo"
+              type="button"
+              data-open={s.slug}
+              aria-label={`Open ${s.title}`}
+              style={`--tilt:${i % 2 ? 1.4 : -1.4}deg`}
+            >
+              {s.cover ? (
+                <Photo photo={s.cover} sizes="(min-width: 1024px) 42rem, 92vw" eager={i < 2} />
+              ) : (
+                <span class="stop-photo-empty">{yearText(s)}</span>
+              )}
+            </button>
+            <div class="stop-text">
+              <p class="stop-meta">
+                <b>{pad(i)}</b>
+                <span>{yearText(s)}</span>
+                {s.place && <span>{s.place}</span>}
+              </p>
+              <h2 class="stop-title">{s.title}</h2>
+              <p class="stop-line">{s.line}</p>
+              {i === last ? (
+                <div class="stop-actions">
+                  <div class="candle" data-candle>
+                    <span class="candle-art" aria-hidden="true"><span class="candle-flame"></span></span>
+                    <span class="candle-text">
+                      <span><b data-candle-count>–</b> candles lit. Each one is a star above.</span>
+                      <button class="candle-btn" type="button" data-candle-btn>Light a candle</button>
+                    </span>
+                  </div>
+                  <a class="btn" href="/campfire/">Leave a memory</a>
+                  <a class="link" href="/eulogy/">Read the eulogy</a>
+                </div>
+              ) : (
+                <div class="stop-actions">
+                  <button class="btn" type="button" data-open={s.slug}>
+                    Open this chapter <Icon name="arrow-up-right" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </article>
+        </div>
+      ))}
     </div>
 
     <div class="ground" aria-hidden="true"></div>
-
-    <div class="hero" data-hero>
-      <p class="hero-eyebrow">Thadeus Esirom Etyang</p>
-      <h1 class="hero-name">Tedy</h1>
-      <p class="hero-dates">07.07.1999 <span>—</span> 11.11.2026</p>
-      <p class="hero-hint"><Icon name="arrow-down" /> Scroll to walk with him</p>
-    </div>
-
-    <ol class="chapters">
-      {stops.map((s, i) => (
-        <li class="chapter" data-chapter>
-          {s.cover && (
-            <figure class="chapter-photo">
-              <Photo photo={s.cover} sizes="16rem" />
-            </figure>
-          )}
-          <p class="chapter-n">Stop <b>{pad(i)}</b> · {s.year}</p>
-          <h2 class="chapter-title">{s.title}</h2>
-          <p class="chapter-line">{s.line}</p>
-          <a class="chapter-link" href={s.href}>Open this chapter <Icon name="arrow-right" /></a>
-        </li>
-      ))}
-    </ol>
-
-    <div class="tedy-wrap" data-tedy-wrap>
-      <p class="bubble" data-bubble aria-live="polite"></p>
-      <button type="button" class="tedy-btn" data-tedy-btn aria-label="Say hi to Tedy">
-        <Tedy />
-      </button>
-    </div>
-
-    <div class="hud">
-      <p class="year" data-year>{stops[0]?.year}</p>
-      <nav class="minimap" aria-label="Trail stops">
-        <span class="minimap-track"><span class="minimap-fill" data-fill></span></span>
+    <div class="bar">
+      <div class="tedy-wrap" data-tedy-wrap>
+        <p class="bubble" data-bubble aria-live="polite"></p>
+        <button class="tedy-btn" type="button" data-tedy-btn aria-label="Say hi to Tedy">
+          <Tedy />
+        </button>
+      </div>
+      <div class="bar-info">
+        <p class="bar-year" data-year>{stops[0] && yearText(stops[0])}</p>
+        <p class="bar-count" data-count>01 / {pad(last)}</p>
+      </div>
+      <nav class="dots" aria-label="Trail stops">
         {stops.map((s, i) => (
-          <button
-            type="button"
-            class="minimap-dot"
-            data-jump={i}
-            aria-label={`Go to ${s.title}`}
-            style={`--x:${(i / Math.max(stops.length - 1, 1)) * 100}%`}
-          ></button>
+          <button class="dot" type="button" data-jump={i} aria-label={`Go to ${s.title}`}></button>
         ))}
       </nav>
     </div>
   </div>
+
+  {stops.map((s, i) => (
+    <template data-chapter={s.slug}>
+      <article class="chapter">
+        {s.media.length > 0 && (
+          <div class="ch-carousel">
+            <div class="ch-photos" data-carousel>
+              {s.media.map((m) => (
+                <figure class="ch-photo">
+                  <Photo photo={m} sizes="(min-width: 1024px) 64rem, 100vw" />
+                  {(m.caption || m.by_tedy) && (
+                    <figcaption>
+                      {m.caption && <span>{m.caption}</span>}
+                      {m.by_tedy && <span class="by">Photo by Tedy</span>}
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+            {s.media.length > 1 && <p class="ch-counter" data-counter>1 / {s.media.length}</p>}
+          </div>
+        )}
+        <div class="ch-text">
+          <p class="ch-meta">
+            <b>{pad(i)}</b>
+            <span>{yearText(s)}</span>
+            {s.place && <span>{s.place}</span>}
+          </p>
+          <h2 class="ch-title">{s.title}</h2>
+          <p class="ch-line">{s.line}</p>
+          {paragraphs(s.body).map((p) => <p class="ch-p">{p}</p>)}
+        </div>
+      </article>
+    </template>
+  ))}
+
+  <dialog class="sheet" data-sheet aria-label="Chapter">
+    <div class="sheet-top">
+      <button class="sheet-close" type="button" data-resume aria-label="Back to the walk">
+        <Icon name="x" />
+      </button>
+    </div>
+    <div class="sheet-body" data-sheet-body></div>
+    <div class="sheet-foot">
+      <button class="btn" type="button" data-resume><Icon name="play" /> Resume the walk</button>
+    </div>
+  </dialog>
 </section>
 
 <script>
