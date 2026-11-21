@@ -105,3 +105,13 @@ export type PublishState = {
   live_at: string | null;
   last: { id: number; status: string; created_at: string; finished_at: string | null } | null;
 };
+
+export type Condolence = {
+  id: number;
+  name: string;
+  relation: string;
+  message: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  reviewed_at: string | null;
+};

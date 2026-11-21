@@ -5,6 +5,7 @@ import { requireAdmin } from '../auth.mjs';
 import { notify } from '../notify.mjs';
 import { touch } from '../meta.mjs';
 import { stops } from './stops.mjs';
+import { condolences } from './condolences.mjs';
 
 export const admin = Router();
 admin.use(requireAdmin);
@@ -104,3 +105,4 @@ admin.post('/publish', async (_req, res) => {
 });
 
 admin.use(stops);
+admin.use(condolences);

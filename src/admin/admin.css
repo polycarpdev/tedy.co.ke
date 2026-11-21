@@ -324,3 +324,37 @@ textarea.ad-input { resize: vertical; line-height: 1.55; }
   animation: ad-spin 0.8s linear infinite;
 }
 @keyframes ad-spin { to { transform: rotate(360deg); } }
+
+.ad-seg { display: flex; gap: 4px; padding: 3px; border: 1px solid #1f262f; border-radius: 9px; }
+.ad-seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #8b9099;
+  cursor: pointer;
+}
+.ad-seg-btn span { font: 12px "IBM Plex Mono", monospace; }
+.ad-seg-btn[aria-current="page"] { background: #151b22; color: #e8e5df; }
+.ad-row-msg { grid-template-columns: minmax(0, 1fr) 120px 76px; }
+.ad-drawer-sm { width: min(640px, 100vw); }
+.ad-quote {
+  margin: 0;
+  padding: 16px 18px;
+  border-left: 3px solid #da291c;
+  background: #10151b;
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.ad-status-pending { color: #ffc46b; }
+.ad-status-approved { color: #6fcf8f; }
+.ad-status-rejected { color: #8b9099; }
+
+@media (max-width: 720px) {
+  .ad-h { flex-wrap: wrap; }
+  .ad-row-msg { grid-template-columns: minmax(0, 1fr) 72px; }
+}

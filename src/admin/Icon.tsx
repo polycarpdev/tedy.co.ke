@@ -15,6 +15,7 @@ import star from '@phosphor-icons/core/assets/light/star-light.svg?raw';
 import close from '@phosphor-icons/core/assets/light/x-light.svg?raw';
 import uploadIcon from '@phosphor-icons/core/assets/light/upload-simple-light.svg?raw';
 import image from '@phosphor-icons/core/assets/light/image-light.svg?raw';
+import check from '@phosphor-icons/core/assets/light/check-light.svg?raw';
 
 const icons = {
   bell,
@@ -33,6 +34,7 @@ const icons = {
   x: close,
   upload: uploadIcon,
   image,
+  check,
 };
 
 export type IconName = keyof typeof icons;
