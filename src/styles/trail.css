@@ -868,3 +868,19 @@ html.is-paused { overflow: hidden; }
 @keyframes vigil-skip-in { to { opacity: 0.55; } }
 
 .trail[data-at="start"] :is(.nav-arrow, .nav-next, .dots, .coach, .bar) { opacity: 0 !important; visibility: hidden; pointer-events: none !important; animation: none !important; }
+
+.veil { position: absolute; inset: 0; z-index: 4; background: rgba(7, 9, 12, 0.9); pointer-events: none; opacity: 0; transition: opacity 1.6s ease; }
+.trail[data-at="start"] .veil { opacity: 1; }
+.stage > .world, .stage > .camp { z-index: 5; }
+.stage > .tedy-wrap { z-index: 6; }
+.stage > .nav-arrow, .stage > .coach, .stage > .bar { z-index: 7; }
+
+.hero-gate, .hero-gate :is(.hero-eyebrow, .hero-name, .hero-dates, .vigil-count, .vigil-skip, .vigil-hint, .link) { transition: color 1.2s ease; }
+.trail[data-at="start"] .hero-gate :is(.hero-eyebrow, .hero-name, .hero-dates, .vigil-count, .vigil-skip, .vigil-hint, .link) { color: #ece8e1; }
+.trail[data-at="start"] .vigil-glow { width: 20rem; height: 20rem; background: radial-gradient(circle, rgba(255, 150, 60, 0.32), transparent 62%); }
+
+.vigil-hint { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7; }
+.vigil-hand { display: inline-flex; font-size: 1.15rem; animation: vigil-hand 2.4s ease-in-out infinite; }
+.vigil-mouse { display: none; }
+@media (pointer: fine) { .vigil-mouse { display: inline; } .vigil-touch { display: none; } }
+@keyframes vigil-hand { 0%, 100% { translate: 0 0.35rem; opacity: 0.5; } 50% { translate: 0 -0.35rem; opacity: 1; } }
