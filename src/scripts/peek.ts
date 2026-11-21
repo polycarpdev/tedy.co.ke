@@ -7,6 +7,7 @@ const hush = () => {
   last = performance.now();
   anim?.cancel();
   anim = null;
+  document.querySelectorAll('.slide.is-peeking').forEach((el) => el.classList.remove('is-peeking', 'is-active'));
 };
 
 const EVENTS = ['wheel', 'touchstart', 'pointerdown', 'keydown', 'scroll'] as const;
@@ -18,6 +19,7 @@ function tick() {
   const atStart = slides[0].classList.contains('is-active') && trail.dataset.at === 'start';
   if (!atStart || anim || document.hidden || performance.now() - last < 1500) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  slides[1].classList.add('is-peeking', 'is-active');
   const d = Math.round(Math.min(innerWidth * 0.2, 300));
   anim = slides[1].animate(
     [
@@ -26,9 +28,10 @@ function tick() {
       { translate: `${-d}px 0`, offset: 0.6 },
       { translate: '0 0' },
     ],
-    { duration: 2600, easing: 'cubic-bezier(.45,0,.25,1)' }
+    { duration: 3200, easing: 'cubic-bezier(.45,0,.25,1)' }
   );
   anim.onfinish = () => {
+    slides[1].classList.remove('is-peeking', 'is-active');
     anim = null;
     last = performance.now() - 500;
   };
