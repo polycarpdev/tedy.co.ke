@@ -23,10 +23,20 @@ export function initCandles(root: ParentNode, onCount?: (count: number) => void)
   const counts = [...root.querySelectorAll<HTMLElement>('[data-candle-count]')];
   const wraps = [...root.querySelectorAll<HTMLElement>('[data-candle]')];
   let alive = true;
+  let shown: number | null = null;
 
   function render(count: number | null, lit: boolean) {
     if (count !== null) {
-      counts.forEach((c) => (c.textContent = count.toLocaleString()));
+      const bump = shown !== null && count !== shown;
+      shown = count;
+      counts.forEach((c) => {
+        c.textContent = count.toLocaleString();
+        if (bump) {
+          c.classList.remove('is-bump');
+          void c.offsetWidth;
+          c.classList.add('is-bump');
+        }
+      });
       onCount?.(count);
     }
     wraps.forEach((w) => w.classList.toggle('is-lit', lit));

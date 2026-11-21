@@ -53,6 +53,9 @@ export function initTrail(root: HTMLElement): () => void {
   let pushedHash = false;
   let touchX = 0;
   let touchY = 0;
+  let moved = false;
+  let atState = '';
+  const teaseStart = performance.now() + 2200;
   const candleStars: SVGCircleElement[] = [];
 
   resetSky();
@@ -78,13 +81,26 @@ export function initTrail(root: HTMLElement): () => void {
     return { x: (i + 1) * W, stop: i };
   }
 
+  function markMoved() {
+    if (moved) return;
+    moved = true;
+    root.dataset.moved = '';
+  }
+
   function scrollToStop(i: number, behavior: ScrollBehavior = 'smooth') {
+    markMoved();
     if (i < 0) {
       window.scrollTo({ top, behavior });
       return;
     }
     const u = i * UNIT + WALK + DWELL * 0.3;
     window.scrollTo({ top: top + (u / total) * scrollLen, behavior });
+  }
+
+  function step(dir: number) {
+    const pos = W ? current / W - 1 : -1;
+    const next = dir > 0 ? Math.floor(pos + 0.001) + 1 : Math.ceil(pos - 0.001) - 1;
+    scrollToStop(clamp(next, -1, n - 1));
   }
 
   function say(text: string, ms = 2200) {
@@ -130,6 +146,7 @@ export function initTrail(root: HTMLElement): () => void {
     if (!sheet.open) sheet.showModal();
     document.documentElement.classList.add('is-paused');
     openSlug = slug;
+    markMoved();
     if (!fromHash) {
       pushedHash = true;
       location.hash = `stop/${slug}`;
@@ -154,18 +171,32 @@ export function initTrail(root: HTMLElement): () => void {
   function frame(now: number) {
     const t = target(progress());
     const prev = current;
-    current += (t.x - current) * 0.14;
+    current += (t.x - current) * 0.12;
     if (Math.abs(t.x - current) < 0.5) current = t.x;
     const dx = current - prev;
     const pos = W ? current / W - 1 : -1;
     const f = clamp(pos / Math.max(n - 1, 1), 0, 1);
 
-    world.style.transform = `translate3d(${-current}px, 0, 0)`;
+    if (!moved && progress() > 0.004) markMoved();
+
+    let tease = 0;
+    if (!moved && !openSlug && current < 1 && now > teaseStart) {
+      const k = (now - teaseStart) % 5200;
+      if (k < 1400) tease = Math.sin((k / 1400) * Math.PI) * W * 0.1;
+    }
+    const view = current + tease;
+
+    world.style.transform = `translate3d(${-view}px, 0, 0)`;
     clouds.style.transform = `translate3d(${-current * 0.04}px, 0, 0)`;
     ridges.forEach((r) => {
       const v = `${-current * Number(r.dataset.ridge)}px 0`;
       r.style.setProperty('-webkit-mask-position', v);
       r.style.setProperty('mask-position', v);
+    });
+    slides.forEach((s, k) => {
+      const d = clamp(k - view / (W || 1), -1.5, 1.5);
+      s.style.setProperty('--d', d.toFixed(3));
+      s.style.setProperty('--ad', Math.abs(d).toFixed(3));
     });
     paintSky(stage, f);
 
@@ -198,6 +229,12 @@ export function initTrail(root: HTMLElement): () => void {
       slides.forEach((s, k) => s.classList.toggle('is-active', k === slide));
     }
 
+    const at = pos < -0.5 ? 'start' : pos > n - 1.5 ? 'end' : 'mid';
+    if (at !== atState) {
+      atState = at;
+      root.dataset.at = at;
+    }
+
     if (nearest !== shownIndex && stops[nearest]) {
       shownIndex = nearest;
       yearEl.textContent = stops[nearest].year;
@@ -211,14 +248,10 @@ export function initTrail(root: HTMLElement): () => void {
     raf = requestAnimationFrame(frame);
   }
 
-  function step(dir: 1 | -1) {
-    const pos = W ? current / W - 1 : -1;
-    const next = dir > 0 ? Math.floor(pos + 0.001) + 1 : Math.ceil(pos - 0.001) - 1;
-    scrollToStop(clamp(next, -1, n - 1));
-  }
-
   const onClick = (e: MouseEvent) => {
-    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-open],[data-resume],[data-begin],[data-jump]');
+    const el = (e.target as HTMLElement).closest<HTMLElement>(
+      '[data-open],[data-resume],[data-begin],[data-jump],[data-step]'
+    );
     if (!el) return;
     if (el.dataset.open) {
       e.preventDefault();
@@ -230,6 +263,8 @@ export function initTrail(root: HTMLElement): () => void {
       scrollToStop(0);
     } else if (el.dataset.jump !== undefined) {
       scrollToStop(Number(el.dataset.jump));
+    } else if (el.dataset.step !== undefined) {
+      step(Number(el.dataset.step));
     }
   };
 
@@ -251,7 +286,7 @@ export function initTrail(root: HTMLElement): () => void {
     const t = e.changedTouches[0];
     const dx = t.clientX - touchX;
     const dy = t.clientY - touchY;
-    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
     step(dx < 0 ? 1 : -1);
   };
 
@@ -306,7 +341,9 @@ export function initTrail(root: HTMLElement): () => void {
     scrollToStop(deepIndex, 'instant' as ScrollBehavior);
     openChapter(deep[1], true);
   } else if (progress() < 0.02) {
-    greetTimer = window.setTimeout(() => say('Niaje bro', 2600), 1200);
+    greetTimer = window.setTimeout(() => say('Niaje bro', 2600), 1400);
+  } else {
+    markMoved();
   }
 
   return () => {

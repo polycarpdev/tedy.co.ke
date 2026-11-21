@@ -1,0 +1,60 @@
+---
+// src/components/TrailChapters.astro
+import Icon from './Icon.astro';
+import Photo from './Photo.astro';
+import { yearText, type Stop } from '../data/content';
+
+interface Props {
+  stops: Stop[];
+}
+
+const { stops } = Astro.props;
+const pad = (i: number) => String(i + 1).padStart(2, '0');
+const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+---
+{stops.map((s, i) => (
+  <template data-chapter={s.slug}>
+    <article class="chapter">
+      {s.media.length > 0 && (
+        <div class="ch-carousel">
+          <div class="ch-photos" data-carousel>
+            {s.media.map((m) => (
+              <figure class="ch-photo">
+                <Photo photo={m} sizes="(min-width: 1024px) 64rem, 100vw" />
+                {(m.caption || m.by_tedy) && (
+                  <figcaption>
+                    {m.caption && <span>{m.caption}</span>}
+                    {m.by_tedy && <span class="by">Photo by Tedy</span>}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+          {s.media.length > 1 && <p class="ch-counter" data-counter>1 / {s.media.length}</p>}
+        </div>
+      )}
+      <div class="ch-text">
+        <p class="ch-meta">
+          <b>{pad(i)}</b>
+          <span>{yearText(s)}</span>
+          {s.place && <span>{s.place}</span>}
+        </p>
+        <h2 class="ch-title">{s.title}</h2>
+        <p class="ch-line">{s.line}</p>
+        {paragraphs(s.body).map((p) => <p class="ch-p">{p}</p>)}
+      </div>
+    </article>
+  </template>
+))}
+
+<dialog class="sheet" data-sheet aria-label="Chapter">
+  <div class="sheet-top">
+    <button class="sheet-close" type="button" data-resume aria-label="Back to the walk">
+      <Icon name="x" />
+    </button>
+  </div>
+  <div class="sheet-body" data-sheet-body></div>
+  <div class="sheet-foot">
+    <button class="btn" type="button" data-resume><Icon name="play" /> Resume the walk</button>
+  </div>
+</dialog>

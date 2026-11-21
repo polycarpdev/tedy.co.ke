@@ -3,13 +3,13 @@
 import Tedy from './Tedy.astro';
 import Icon from './Icon.astro';
 import Photo from './Photo.astro';
+import TrailChapters from './TrailChapters.astro';
 import { getStops, yearText } from '../data/content';
 import '../styles/trail.css';
 
 const stops = await getStops();
 const last = stops.length - 1;
 const pad = (i: number) => String(i + 1).padStart(2, '0');
-const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
 let seed = 7;
 const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -23,29 +23,32 @@ const data = JSON.stringify(
   stops.map((s) => ({ slug: s.slug, year: yearText(s), outfit: s.outfit, accessory: s.accessory }))
 );
 ---
-<section class="trail" data-trail data-stops={data} style={`--stops:${stops.length}`}>
+<section class="trail" data-trail data-at="start" data-stops={data} style={`--stops:${stops.length}`}>
   <div class="stage" data-stage>
     <svg class="sky" data-sky aria-hidden="true">
       {stars.map((s) => (
         <circle cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} style={`animation-delay:-${s.d}s`} />
       ))}
     </svg>
-    <div class="sun" aria-hidden="true"></div>
-    <div class="moon" aria-hidden="true"></div>
     <div class="clouds" data-clouds aria-hidden="true">
       <span class="cloud c1"></span>
       <span class="cloud c2"></span>
       <span class="cloud c3"></span>
       <span class="cloud c4"></span>
     </div>
+    <div class="sun" aria-hidden="true"></div>
+    <div class="moon" aria-hidden="true"></div>
     <div class="ridge ridge-far" data-ridge="0.05" aria-hidden="true"></div>
-    <div class="ridge ridge-near" data-ridge="0.12" aria-hidden="true"></div>
+    <div class="ridge ridge-near" data-ridge="0.14" aria-hidden="true"></div>
+    <div class="ground" aria-hidden="true"></div>
 
     <div class="world" data-world>
       <div class="slide slide-hero" data-slide>
         <div class="hero">
           <p class="hero-eyebrow">Thadeus Esirom Etyang</p>
-          <h1 class="hero-name">Tedy</h1>
+          <h1 class="hero-name" aria-label="Tedy">
+            {'Tedy'.split('').map((c, i) => <span aria-hidden="true" style={`--i:${i}`}>{c}</span>)}
+          </h1>
           <p class="hero-dates">07.07.1999 <span>—</span> 11.11.2026</p>
           <div class="candle" data-candle>
             <span class="candle-art" aria-hidden="true"><span class="candle-flame"></span></span>
@@ -58,7 +61,10 @@ const data = JSON.stringify(
             <button class="btn" type="button" data-begin>Begin the walk <Icon name="arrow-right" /></button>
             <a class="link" href="/eulogy/">Read the eulogy</a>
           </div>
-          <p class="hero-hint"><Icon name="arrow-down" /> Scroll or swipe</p>
+          <p class="swipe-hint" aria-hidden="true">
+            <span class="swipe-track"><span class="swipe-dot"></span></span>
+            Swipe or scroll to walk with him
+          </p>
         </div>
       </div>
 
@@ -70,7 +76,7 @@ const data = JSON.stringify(
               type="button"
               data-open={s.slug}
               aria-label={`Open ${s.title}`}
-              style={`--tilt:${i % 2 ? 1.4 : -1.4}deg`}
+              style={`--tilt:${i % 2 ? 2 : -2}deg`}
             >
               {s.cover ? (
                 <Photo photo={s.cover} sizes="(min-width: 1024px) 42rem, 92vw" eager={i < 2} />
@@ -111,14 +117,21 @@ const data = JSON.stringify(
       ))}
     </div>
 
-    <div class="ground" aria-hidden="true"></div>
+    <button class="nav-arrow nav-prev" type="button" data-step="-1" aria-label="Previous stop">
+      <Icon name="caret-left" />
+    </button>
+    <button class="nav-arrow nav-next" type="button" data-step="1" aria-label="Next stop">
+      <Icon name="caret-right" />
+    </button>
+
+    <div class="tedy-wrap" data-tedy-wrap>
+      <p class="bubble" data-bubble aria-live="polite"></p>
+      <button class="tedy-btn" type="button" data-tedy-btn aria-label="Say hi to Tedy">
+        <Tedy />
+      </button>
+    </div>
+
     <div class="bar">
-      <div class="tedy-wrap" data-tedy-wrap>
-        <p class="bubble" data-bubble aria-live="polite"></p>
-        <button class="tedy-btn" type="button" data-tedy-btn aria-label="Say hi to Tedy">
-          <Tedy />
-        </button>
-      </div>
       <div class="bar-info">
         <p class="bar-year" data-year>{stops[0] && yearText(stops[0])}</p>
         <p class="bar-count" data-count>01 / {pad(last)}</p>
@@ -131,52 +144,7 @@ const data = JSON.stringify(
     </div>
   </div>
 
-  {stops.map((s, i) => (
-    <template data-chapter={s.slug}>
-      <article class="chapter">
-        {s.media.length > 0 && (
-          <div class="ch-carousel">
-            <div class="ch-photos" data-carousel>
-              {s.media.map((m) => (
-                <figure class="ch-photo">
-                  <Photo photo={m} sizes="(min-width: 1024px) 64rem, 100vw" />
-                  {(m.caption || m.by_tedy) && (
-                    <figcaption>
-                      {m.caption && <span>{m.caption}</span>}
-                      {m.by_tedy && <span class="by">Photo by Tedy</span>}
-                    </figcaption>
-                  )}
-                </figure>
-              ))}
-            </div>
-            {s.media.length > 1 && <p class="ch-counter" data-counter>1 / {s.media.length}</p>}
-          </div>
-        )}
-        <div class="ch-text">
-          <p class="ch-meta">
-            <b>{pad(i)}</b>
-            <span>{yearText(s)}</span>
-            {s.place && <span>{s.place}</span>}
-          </p>
-          <h2 class="ch-title">{s.title}</h2>
-          <p class="ch-line">{s.line}</p>
-          {paragraphs(s.body).map((p) => <p class="ch-p">{p}</p>)}
-        </div>
-      </article>
-    </template>
-  ))}
-
-  <dialog class="sheet" data-sheet aria-label="Chapter">
-    <div class="sheet-top">
-      <button class="sheet-close" type="button" data-resume aria-label="Back to the walk">
-        <Icon name="x" />
-      </button>
-    </div>
-    <div class="sheet-body" data-sheet-body></div>
-    <div class="sheet-foot">
-      <button class="btn" type="button" data-resume><Icon name="play" /> Resume the walk</button>
-    </div>
-  </dialog>
+  <TrailChapters stops={stops} />
 </section>
 
 <script>

@@ -21,7 +21,7 @@ const KEYS: Key[] = [
   { top: '#07090c', bottom: '#131a22', far: '#0b1016', near: '#0e141b', ground: '#0d1116', fg: '#ece8e1', muted: '#8b9099', cloud: '#222222', cloudO: 0 },
 ];
 
-const SUNSET = 4 / 6;
+const SUNSET = 0.68;
 
 const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const mix = (a: string, b: string, t: number) => {
@@ -60,14 +60,14 @@ export function paintSky(stage: HTMLElement, f: number) {
 
   const sp = clamp(f / SUNSET);
   const arc = Math.sin(Math.PI * sp);
-  s.setProperty('--sun-x', `${8 + 84 * sp}%`);
-  s.setProperty('--sun-y', `${74 - 60 * arc}%`);
-  s.setProperty('--sun-o', String(1 - clamp((f - SUNSET) / 0.05)));
-  s.setProperty('--sun', mix('#ffb070', '#fff3c4', arc));
+  s.setProperty('--sun-x', `${6 + 88 * sp}%`);
+  s.setProperty('--sun-arc', arc.toFixed(3));
+  s.setProperty('--sun-o', String(1 - clamp((f - SUNSET) / 0.04)));
+  s.setProperty('--sun', mix('#ff9a5a', '#fff3c4', arc));
 
-  const mp = clamp((f - 0.75) / 0.25);
-  s.setProperty('--moon-x', `${82 - 12 * mp}%`);
-  s.setProperty('--moon-y', `${64 - 46 * mp}%`);
-  s.setProperty('--moon-o', String(mp));
+  const mp = clamp((f - 0.74) / 0.26);
+  s.setProperty('--moon-x', `${88 - 22 * mp}%`);
+  s.setProperty('--moon-arc', mp.toFixed(3));
+  s.setProperty('--moon-o', String(Math.min(1, mp * 1.6)));
   s.setProperty('--star-o', String(clamp((f - 0.6) / 0.3)));
 }
