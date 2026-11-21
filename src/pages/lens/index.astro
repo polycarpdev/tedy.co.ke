@@ -59,6 +59,7 @@ const metaFor = (s: Stop) => [yearText(s), s.title, s.place].filter(Boolean).joi
               class="tile"
               type="button"
               data-tile
+              style={`--ar:${(m.width / (m.height || 1)).toFixed(4)}`}
               data-stop={s.slug}
               data-by={m.by_tedy ? '1' : '0'}
               data-src={`/media/${m.file}/1600.webp`}
