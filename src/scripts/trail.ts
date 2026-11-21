@@ -41,6 +41,10 @@ export function initTrail(root: HTMLElement): () => void {
   let charW = 0;
   let charL = 0;
   let charR = 0;
+  let tx = 0;
+  let seatX = 0;
+  let lastFrame = 0;
+  let lastLinked = Number.NaN;
   let top = 0;
   let scrollLen = 0;
   let current = 0;
@@ -71,11 +75,14 @@ export function initTrail(root: HTMLElement): () => void {
     charL = parseFloat(getComputedStyle(tedyWrap).left) || 0;
     charR = parseFloat(getComputedStyle(document.documentElement).fontSize) * (W >= 1024 ? 4.5 : 2.75);
     const seatW = charW * 0.4;
-    stage.style.setProperty('--camp-r', `${charR + charW / 2 - seatW / 2}px`);
+    const fireH = charH * 0.5;
+    const campGap = charW * 0.6;
+    stage.style.setProperty('--camp-r', `${charR}px`);
     stage.style.setProperty('--seat-w', `${seatW}px`);
     stage.style.setProperty('--seat-h', `${charH * 0.27}px`);
-    stage.style.setProperty('--fire-h', `${charH * 0.5}px`);
-    stage.style.setProperty('--camp-gap', `${charW * 0.6}px`);
+    stage.style.setProperty('--fire-h', `${fireH}px`);
+    stage.style.setProperty('--camp-gap', `${campGap}px`);
+    seatX = Math.max(0, W - charR - fireH * 0.9 - campGap - seatW / 2 - charW * 0.5 - charL);
     slides.forEach((s, i) => {
       s.style.left = `${i * W}px`;
       s.style.width = `${W}px`;
@@ -213,29 +220,36 @@ export function initTrail(root: HTMLElement): () => void {
     });
     paintSky(stage, f);
 
-    const along = clamp(current / (W * n || 1), 0, 1);
-    const range = Math.max(0, W - charW - charL - charR);
-    tedyWrap.style.transform = `translate3d(${(along * range).toFixed(1)}px, 0, 0)`;
-    const ground = Math.abs(dx) * (range / (W * n || 1));
+    const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
+    lastFrame = now;
+    const auto = pos > n - 2 + 0.02;
+    const linked = clamp((pos + 1) / Math.max(n - 1, 1), 0, 1) * seatX * 0.75;
+    const follow = Number.isNaN(lastLinked) ? 0 : Math.abs(linked - lastLinked) * 1.25 + 1;
+    lastLinked = linked;
+    const desired = auto ? seatX : linked;
+    const limit = Math.max(charH * 1.3 * dt, auto ? 0 : follow);
+    const stepX = clamp(desired - tx, -limit, limit);
+    tx += stepX;
+    tedyWrap.style.transform = `translate3d(${tx.toFixed(1)}px, 0, 0)`;
+    const speed = Math.abs(stepX) / (dt || 0.016);
 
-    if (Math.abs(dx) > 0.3) {
+    if (Math.abs(stepX) > 0.15) {
       lastMove = now;
-      const dur = clamp((charH * 0.55) / (Math.max(ground, 0.05) * 60), 0.3, 1.1);
+      const dur = clamp((charH * 0.55) / Math.max(speed, 1), 0.3, 1.1);
       if (!stepDur || Math.abs(dur - stepDur) / stepDur > 0.15) {
         stepDur = dur;
         tedy.style.setProperty('--step', `${dur}s`);
       }
       tedy.classList.add('is-walking');
       tedy.classList.remove('is-idle', 'is-pointing', 'is-sitting');
-      tedy.classList.toggle('is-left', dx < 0);
+      tedy.classList.toggle('is-left', stepX < 0);
     } else if (now - lastMove > 140) {
-      const atStop = t.stop >= 0 && current === t.x;
-      const atEnd = t.stop === n - 1;
-      tedy.classList.remove('is-walking');
-      tedy.classList.toggle('is-sitting', atStop && atEnd);
-      tedy.classList.toggle('is-pointing', atStop && !atEnd);
-      tedy.classList.toggle('is-idle', !atStop);
-      if (atStop) tedy.classList.toggle('is-left', atEnd);
+      const seated = auto && Math.abs(seatX - tx) < 1;
+      const atStop = !auto && t.stop >= 0 && current === t.x;
+      tedy.classList.remove('is-walking', 'is-left');
+      tedy.classList.toggle('is-sitting', seated);
+      tedy.classList.toggle('is-pointing', atStop);
+      tedy.classList.toggle('is-idle', !seated && !atStop);
     }
 
     const nearest = clamp(Math.round(pos), 0, n - 1);

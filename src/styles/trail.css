@@ -679,3 +679,5 @@ html.is-paused { overflow: hidden; }
 @media (max-height: 640px) {
   .coach-text { display: none; }
 }
+
+.camp-seat { order: -1; }
