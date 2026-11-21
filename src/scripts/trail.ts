@@ -226,7 +226,6 @@ export function initTrail(root: HTMLElement): () => void {
       const k = (now - lastInteract - 1500) % 4500;
       if (k < 2200) peek = Math.sin((k / 2200) * Math.PI) * W * 0.2;
     }
-    if (slides[1]) slides[1].style.translate = peek ? `${(-peek).toFixed(1)}px 0` : '';
     const view = current + tease;
 
     world.style.transform = `translate3d(${-view}px, 0, 0)`;
