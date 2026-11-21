@@ -24,6 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          CONTENT_URL: https://tedy.co.ke/api/public/content
       - name: Assemble deploy bundle
         run: |
           mkdir -p out/server
@@ -39,3 +41,16 @@ jobs:
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com
           full_commit_message: deploy ${{ github.sha }}
+      - name: Deploy to server
+        run: |
+          curl -fsS -X POST https://tedy.co.ke/api/hooks/deploy \
+            -H "X-Deploy-Secret: ${{ secrets.DEPLOY_HOOK_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{"status":"ok"}'
+      - name: Report failure
+        if: failure()
+        run: |
+          curl -sS -X POST https://tedy.co.ke/api/hooks/deploy \
+            -H "X-Deploy-Secret: ${{ secrets.DEPLOY_HOOK_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{"status":"failed"}' || true

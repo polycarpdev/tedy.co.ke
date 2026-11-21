@@ -34,8 +34,12 @@ export function uploadFile<T>(path: string, file: File, onProgress: (p: number) 
       } catch {
         data = {};
       }
-      if (xhr.status < 300) resolve(data as T);
-      else reject(new ApiError(xhr.status, data.error || 'Upload failed'));
+      if (xhr.status < 300) {
+        window.dispatchEvent(new Event('ad:changed'));
+        resolve(data as T);
+        return;
+      }
+      reject(new ApiError(xhr.status, data.error || 'Upload failed'));
     };
     xhr.onerror = () => reject(new ApiError(0, 'Network error'));
     const form = new FormData();
@@ -93,4 +97,11 @@ export type StopDetail = {
   accessory: Accessory;
   published: boolean;
   media: Media[];
+};
+
+export type PublishState = {
+  running: boolean;
+  changed: boolean;
+  live_at: string | null;
+  last: { id: number; status: string; created_at: string; finished_at: string | null } | null;
 };

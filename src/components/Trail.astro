@@ -2,8 +2,11 @@
 // src/components/Trail.astro
 import Tedy from './Tedy.astro';
 import Icon from './Icon.astro';
-import { TRAIL } from '../data/trail';
+import Photo from './Photo.astro';
+import { getStops } from '../data/content';
 import '../styles/trail.css';
+
+const stops = await getStops();
 
 let seed = 7;
 const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -13,10 +16,10 @@ const stars = Array.from({ length: 90 }, () => ({
   r: (rand() * 1.1 + 0.3).toFixed(2),
   d: (rand() * 4).toFixed(2),
 }));
-const stopsData = JSON.stringify(TRAIL.map(({ year, outfit, accessory }) => ({ year, outfit, accessory })));
+const stopsData = JSON.stringify(stops.map(({ year, outfit, accessory }) => ({ year, outfit, accessory })));
 const pad = (i: number) => String(i + 1).padStart(2, '0');
 ---
-<section class="trail" data-trail data-stops={stopsData} style={`--stops:${TRAIL.length}`}>
+<section class="trail" data-trail data-stops={stopsData} style={`--stops:${stops.length}`}>
   <div class="stage" data-stage>
     <svg class="sky" aria-hidden="true">
       {stars.map((s) => (
@@ -35,8 +38,8 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
     <div class="ridge ridge-near" data-ridge="0.22" aria-hidden="true"></div>
 
     <div class="world" data-world aria-hidden="true">
-      {TRAIL.map((s, i) =>
-        i === TRAIL.length - 1 ? (
+      {stops.map((s, i) =>
+        i === stops.length - 1 ? (
           <div class="fire" data-post>
             <span class="flame"></span>
             <span class="flame f2"></span>
@@ -62,8 +65,13 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
     </div>
 
     <ol class="chapters">
-      {TRAIL.map((s, i) => (
+      {stops.map((s, i) => (
         <li class="chapter" data-chapter>
+          {s.cover && (
+            <figure class="chapter-photo">
+              <Photo photo={s.cover} sizes="16rem" />
+            </figure>
+          )}
           <p class="chapter-n">Stop <b>{pad(i)}</b> · {s.year}</p>
           <h2 class="chapter-title">{s.title}</h2>
           <p class="chapter-line">{s.line}</p>
@@ -80,16 +88,16 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
     </div>
 
     <div class="hud">
-      <p class="year" data-year>{TRAIL[0].year}</p>
+      <p class="year" data-year>{stops[0]?.year}</p>
       <nav class="minimap" aria-label="Trail stops">
         <span class="minimap-track"><span class="minimap-fill" data-fill></span></span>
-        {TRAIL.map((s, i) => (
+        {stops.map((s, i) => (
           <button
             type="button"
             class="minimap-dot"
             data-jump={i}
             aria-label={`Go to ${s.title}`}
-            style={`--x:${(i / (TRAIL.length - 1)) * 100}%`}
+            style={`--x:${(i / Math.max(stops.length - 1, 1)) * 100}%`}
           ></button>
         ))}
       </nav>

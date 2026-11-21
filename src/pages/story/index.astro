@@ -1,8 +1,126 @@
 ---
 // src/pages/story/index.astro
 import Base from '../../layouts/Base.astro';
-import Stop from '../../components/Stop.astro';
+import Photo from '../../components/Photo.astro';
+import { getStops } from '../../data/content';
+
+const stops = await getStops();
+const paragraphs = (text: string) =>
+  text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+const pad = (i: number) => String(i + 1).padStart(2, '0');
 ---
 <Base title="His Story" description="The chapters of Tedy's life, told by the people who walked it with him.">
-  <Stop n="02" title="His Story" line="Chapters of a life, told by the people who walked it with him." />
+  <div class="story">
+    <header class="story-head">
+      <p class="eyebrow">Stop <b>02</b></p>
+      <h1>His Story</h1>
+      <p class="intro">Chapters of a life, told by the people who walked it with him.</p>
+    </header>
+
+    {stops.map((s, i) => (
+      <section class="ch" id={s.slug}>
+        <div class="ch-meta">
+          <span>Stop <b>{pad(i)}</b></span>
+          <span class="ch-year">{s.year}</span>
+        </div>
+        <div class="ch-main">
+          <h2>{s.title}</h2>
+          <p class="ch-lead">{s.line}</p>
+          {paragraphs(s.body).map((p) => <p class="ch-p">{p}</p>)}
+          {s.media.length > 0 && (
+            <div class="ch-photos">
+              {s.media.map((m) => (
+                <figure>
+                  <Photo photo={m} sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 92vw" />
+                  {m.caption && <figcaption>{m.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    ))}
+  </div>
 </Base>
+
+<style>
+  .story { max-width: 90rem; margin-inline: auto; padding: 7rem 1.5rem 4rem; }
+  .story-head { display: grid; gap: 0.75rem; margin-bottom: 2.5rem; }
+  .eyebrow,
+  .ch-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .eyebrow b,
+  .ch-meta b { color: var(--color-red); font-weight: 500; }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.75rem, 13vw, 5rem);
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+  .intro { max-width: 48ch; font-size: 1.125rem; color: var(--color-muted); }
+
+  .ch {
+    display: grid;
+    gap: 1rem;
+    padding: 2.5rem 0;
+    border-top: 1px solid var(--color-line);
+    scroll-margin-top: 5rem;
+  }
+  .ch-meta { display: flex; gap: 1rem; align-items: baseline; }
+  .ch-main { display: grid; gap: 1rem; }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2rem, 8vw, 3rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .ch-lead { max-width: 60ch; font-size: 1.25rem; line-height: 1.5; }
+  .ch-p { max-width: 68ch; font-size: 1.0625rem; line-height: 1.7; color: #c9c5bd; }
+  .ch-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  figure { margin: 0; }
+  .ch-photos :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    background: var(--color-night-2);
+  }
+  figcaption {
+    margin-top: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .story { padding: 8rem 2.5rem 5rem; }
+    h1 { font-size: 7rem; }
+    .ch { grid-template-columns: 12rem minmax(0, 1fr); gap: 2.5rem; }
+    .ch-meta {
+      position: sticky;
+      top: 6rem;
+      align-self: start;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .ch-year {
+      font-size: 2.25rem;
+      letter-spacing: 0;
+      color: var(--color-ink);
+    }
+  }
+</style>

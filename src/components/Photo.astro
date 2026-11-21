@@ -1,0 +1,32 @@
+---
+// src/components/Photo.astro
+import type { Photo as PhotoData } from '../data/content';
+
+interface Props {
+  photo: PhotoData;
+  sizes: string;
+  class?: string;
+  eager?: boolean;
+}
+
+const { photo, sizes, class: className, eager = false } = Astro.props;
+const long = Math.max(photo.width, photo.height) || 1;
+const widthAt = (s: number) => Math.round(photo.width * Math.min(1, s / long));
+const seen = new Set<number>();
+const srcset = [480, 960, 1600, 2400]
+  .map((s) => ({ s, w: widthAt(s) }))
+  .filter(({ w }) => (seen.has(w) ? false : (seen.add(w), true)))
+  .map(({ s, w }) => `/media/${photo.file}/${s}.webp ${w}w`)
+  .join(', ');
+---
+<img
+  src={`/media/${photo.file}/960.webp`}
+  srcset={srcset}
+  sizes={sizes}
+  width={widthAt(960)}
+  height={Math.round(photo.height * Math.min(1, 960 / long))}
+  alt={photo.alt || photo.caption || ''}
+  loading={eager ? 'eager' : 'lazy'}
+  decoding="async"
+  class={className}
+/>

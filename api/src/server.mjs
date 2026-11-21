@@ -5,6 +5,8 @@ import cookieParser from 'cookie-parser';
 import { pool } from './db.mjs';
 import { auth } from './routes/auth.mjs';
 import { admin } from './routes/admin.mjs';
+import { publicRoutes } from './routes/public.mjs';
+import { hooks } from './routes/hooks.mjs';
 
 if (!process.env.JWT_SECRET) console.error('JWT_SECRET is missing from .env');
 
@@ -29,11 +31,17 @@ router.get('/health', async (_req, res) => {
 
 router.use('/auth', auth);
 router.use('/admin', admin);
+router.use('/public', publicRoutes);
+router.use('/hooks', hooks);
 
 app.use('/api', router);
 app.use('/', router);
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((err, _req, res, _next) => {
+  if (err?.name === 'MulterError') {
+    const message = err.code === 'LIMIT_FILE_SIZE' ? 'Photo is larger than 25 MB' : err.message;
+    return res.status(400).json({ error: message });
+  }
   console.error(err);
   res.status(500).json({ error: 'Server error' });
 });

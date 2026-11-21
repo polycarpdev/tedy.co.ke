@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 # scripts/deploy.sh
-set -euo pipefail
+set -Eeuo pipefail
 
 REPO_DIR="$HOME/tedy-deploy"
 DOCROOT="$HOME/tedy.co.ke"
 APP_DIR="$HOME/tedy-api"
 
 main() {
+  exec 9>"$HOME/.tedy-deploy.lock"
+  flock 9
+  trap 'finish failed' ERR
+  echo "Deploy started $(date -Is)"
+
   cd "$REPO_DIR"
   git fetch --depth 1 origin deploy
   git reset --hard origin/deploy
@@ -14,7 +19,7 @@ main() {
 
   if [ ! -f "$REPO_DIR/site/index.html" ]; then
     echo "Build has no index.html. Aborting."
-    exit 1
+    false
   fi
 
   sync_dir "$REPO_DIR/site" "$DOCROOT" .well-known cgi-bin api media
@@ -23,7 +28,12 @@ main() {
     deploy_api
   fi
 
+  finish live
   echo "Deployed: $(git -C "$REPO_DIR" log -1 --format='%s')"
+}
+
+find_venv() {
+  ls -d "$HOME"/nodevenv/tedy-api/*/bin/activate 2>/dev/null | sort -V | tail -n 1 || true
 }
 
 sync_dir() {
@@ -42,37 +52,44 @@ sync_dir() {
 }
 
 deploy_api() {
-  local venv
-  venv=$(ls -d "$HOME"/nodevenv/tedy-api/*/bin/activate 2>/dev/null | sort -V | tail -n 1 || true)
+  local venv sum
+  venv=$(find_venv)
   if [ -z "$venv" ]; then
-    echo "Node app environment not found. Create the Node.js app in cPanel first."
+    echo "Node app environment not found. Skipping API."
     return 0
   fi
-
   set +u
   source "$venv"
   set -u
   cd "$APP_DIR"
-
-  local sum
   sum=$(sha1sum package-lock.json | cut -d' ' -f1)
   if [ "$sum" != "$(cat .deps.sha 2>/dev/null || true)" ]; then
     npm install --omit=dev --no-audit --no-fund
     echo "$sum" > .deps.sha
   fi
-
   if [ -f .env ]; then
     node src/migrate.mjs
-  else
-    echo "No .env in $APP_DIR. Skipping migrations."
   fi
-
   mkdir -p tmp
   touch tmp/restart.txt
   set +u
   deactivate 2>/dev/null || true
   set -u
   echo "API restarted"
+}
+
+finish() {
+  local state="$1" venv
+  trap - ERR
+  venv=$(find_venv)
+  if [ -z "$venv" ] || [ ! -f "$APP_DIR/src/finish-deploy.mjs" ]; then
+    return 0
+  fi
+  (
+    set +eu
+    source "$venv"
+    cd "$APP_DIR" && node src/finish-deploy.mjs "$state"
+  ) || true
 }
 
 main "$@"

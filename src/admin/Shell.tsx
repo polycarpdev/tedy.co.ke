@@ -5,6 +5,7 @@ import { Icon, type IconName } from './Icon';
 import { Bell } from './Bell';
 import { Overview } from './Overview';
 import { Stops } from './Stops';
+import { Publish } from './Publish';
 
 const TABS: { id: string; label: string; icon: IconName }[] = [
   { id: 'overview', label: 'Overview', icon: 'overview' },
@@ -50,6 +51,7 @@ export function Shell({ admin, onSignOut }: { admin: Admin; onSignOut: () => voi
             <Icon name="open" />
             <span className="ad-hide-sm">View site</span>
           </a>
+          <Publish />
           <Bell />
           <button className="ad-btn" onClick={signOut} title={`Sign out ${admin.name}`} aria-label="Sign out">
             <Icon name="sign-out" />

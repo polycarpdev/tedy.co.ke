@@ -390,3 +390,27 @@
   .hero-name { font-size: 10rem; }
   .chapter-title { font-size: 3.5rem; }
 }
+
+.chapter-photo {
+  display: none;
+  justify-self: start;
+  width: 14rem;
+  margin: 0 0 0.75rem;
+  padding: 0.4rem 0.4rem 1.6rem;
+  background: #fbf8f2;
+  box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.25);
+  transform: rotate(-2.5deg);
+}
+.chapter-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+@media (min-width: 768px) {
+  .chapter-photo { display: block; }
+}
+@media (min-width: 1024px) and (min-aspect-ratio: 2/1) {
+  .chapter-photo { width: 11rem; }
+}
