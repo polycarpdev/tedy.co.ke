@@ -79,86 +79,86 @@ export function StopPanel({ id, onClose, onChange }: Props) {
   }
 
   return (
-    <div className="ad-drawer-wrap" onMouseDown={(e) => e.target === e.currentTarget && close()}>
-      <aside className="ad-drawer">
-        <div className="ad-drawer-h">
+    <div className="cms-drawer-wrap" onMouseDown={(e) => e.target === e.currentTarget && close()}>
+      <aside className="cms-drawer">
+        <div className="cms-drawer-h">
           <strong>{form?.title || 'Loading'}</strong>
-          <button className="ad-icon-btn" onClick={close} aria-label="Close">
+          <button className="cms-icon-btn" onClick={close} aria-label="Close">
             <Icon name="x" />
           </button>
         </div>
 
         {form ? (
-          <div className="ad-drawer-body">
-            <div className="ad-grid-title">
-              <label className="ad-field">
+          <div className="cms-drawer-body">
+            <div className="cms-grid-title">
+              <label className="cms-field">
                 Title
-                <input className="ad-input" value={form.title} maxLength={80}
+                <input className="cms-input" value={form.title} maxLength={80}
                   onChange={(e) => set('title', e.target.value)} />
               </label>
-              <label className="ad-field">
+              <label className="cms-field">
                 Place <span>optional</span>
-                <input className="ad-input" value={form.place} maxLength={120} placeholder="Amairo, Teso South"
+                <input className="cms-input" value={form.place} maxLength={120} placeholder="Amairo, Teso South"
                   onChange={(e) => set('place', e.target.value)} />
               </label>
             </div>
 
-            <div className="ad-grid-4">
-              <label className="ad-field">
+            <div className="cms-grid-4">
+              <label className="cms-field">
                 From
-                <input className="ad-input" type="number" min={1900} max={2100} value={form.year}
+                <input className="cms-input" type="number" min={1900} max={2100} value={form.year}
                   onChange={(e) => set('year', Number(e.target.value))} />
               </label>
-              <label className="ad-field">
+              <label className="cms-field">
                 To <span>optional</span>
-                <input className="ad-input" type="number" min={1900} max={2100} value={form.year_end ?? ''}
+                <input className="cms-input" type="number" min={1900} max={2100} value={form.year_end ?? ''}
                   onChange={(e) => set('year_end', e.target.value ? Number(e.target.value) : null)} />
               </label>
-              <label className="ad-field">
+              <label className="cms-field">
                 Label <span>replaces the years</span>
-                <input className="ad-input" value={form.year_label} maxLength={30} placeholder="Always"
+                <input className="cms-input" value={form.year_label} maxLength={30} placeholder="Always"
                   onChange={(e) => set('year_label', e.target.value)} />
               </label>
-              <label className="ad-field">
+              <label className="cms-field">
                 Link name
-                <input className="ad-input" value={form.slug} maxLength={60}
+                <input className="cms-input" value={form.slug} maxLength={60}
                   onChange={(e) => set('slug', e.target.value)} />
               </label>
             </div>
 
-            <label className="ad-field">
+            <label className="cms-field">
               Short line <span>shown on the trail</span>
-              <textarea className="ad-input" rows={2} maxLength={220} value={form.line}
+              <textarea className="cms-input" rows={2} maxLength={220} value={form.line}
                 onChange={(e) => set('line', e.target.value)} />
             </label>
 
-            <label className="ad-field">
+            <label className="cms-field">
               Story <span>leave a blank line between paragraphs</span>
-              <textarea className="ad-input" rows={10} value={form.body}
+              <textarea className="cms-input" rows={10} value={form.body}
                 placeholder="Write it the way you'd tell it."
                 onChange={(e) => set('body', e.target.value)} />
             </label>
 
-            <div className="ad-grid-3">
-              <label className="ad-field">
+            <div className="cms-grid-3">
+              <label className="cms-field">
                 Outfit
-                <select className="ad-input" value={form.outfit}
+                <select className="cms-input" value={form.outfit}
                   onChange={(e) => set('outfit', e.target.value as Outfit)}>
                   <option value="jersey">No. 6 jersey</option>
                   <option value="army">Army</option>
                   <option value="casual">Casual, cap</option>
                 </select>
               </label>
-              <label className="ad-field">
+              <label className="cms-field">
                 Accessory
-                <select className="ad-input" value={form.accessory}
+                <select className="cms-input" value={form.accessory}
                   onChange={(e) => set('accessory', e.target.value as Accessory)}>
                   <option value="none">None</option>
                   <option value="camera">Camera</option>
                   <option value="headphones">Headphones</option>
                 </select>
               </label>
-              <label className="ad-check">
+              <label className="cms-check">
                 <input type="checkbox" checked={form.published}
                   onChange={(e) => set('published', e.target.checked)} />
                 Show on the site
@@ -168,16 +168,16 @@ export function StopPanel({ id, onClose, onChange }: Props) {
             <MediaGrid stopId={id} media={form.media} onChange={setMedia} />
           </div>
         ) : (
-          <div className="ad-drawer-body ad-muted">{msg || 'Loading'}</div>
+          <div className="cms-drawer-body cms-muted">{msg || 'Loading'}</div>
         )}
 
         {form && (
-          <div className="ad-drawer-f">
-            <button className="ad-btn ad-btn-danger" onClick={remove}>
+          <div className="cms-drawer-f">
+            <button className="cms-btn cms-btn-danger" onClick={remove}>
               <Icon name="trash" /> Delete stop
             </button>
-            <span className="ad-muted">{dirty ? 'Unsaved changes' : msg}</span>
-            <button className="ad-btn ad-btn-primary" onClick={save} disabled={!dirty || saving}>
+            <span className="cms-muted">{dirty ? 'Unsaved changes' : msg}</span>
+            <button className="cms-btn cms-btn-primary" onClick={save} disabled={!dirty || saving}>
               {saving ? 'Saving' : 'Save changes'}
             </button>
           </div>

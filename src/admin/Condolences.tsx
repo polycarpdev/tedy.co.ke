@@ -53,11 +53,11 @@ export function Condolences() {
 
   return (
     <>
-      <div className="ad-h">
+      <div className="cms-h">
         <h2>Condolences</h2>
-        <div className="ad-seg">
+        <div className="cms-seg">
           {STATUSES.map((s) => (
-            <button key={s} className="ad-seg-btn" aria-current={status === s ? 'page' : undefined}
+            <button key={s} className="cms-seg-btn" aria-current={status === s ? 'page' : undefined}
               onClick={() => setStatus(s)}>
               {LABELS[s]} <span>{feed.counts[s]}</span>
             </button>
@@ -66,28 +66,28 @@ export function Condolences() {
       </div>
 
       {feed.items.length === 0 ? (
-        <div className="ad-card ad-muted">
+        <div className="cms-card cms-muted">
           {status === 'pending' ? 'Nothing waiting. All caught up.' : 'Nothing here yet.'}
         </div>
       ) : (
-        <div className="ad-table">
+        <div className="cms-table">
           {feed.items.map((c) => (
-            <div key={c.id} className={`ad-row ad-row-msg${openId === c.id ? ' is-open' : ''}`} onClick={() => open(c.id)}>
-              <div className="ad-row-main">
-                <div className="ad-row-title">
-                  {c.name} <span className="ad-pill">{c.relation}</span>
+            <div key={c.id} className={`cms-row cms-row-msg${openId === c.id ? ' is-open' : ''}`} onClick={() => open(c.id)}>
+              <div className="cms-row-main">
+                <div className="cms-row-title">
+                  {c.name} <span className="cms-pill">{c.relation}</span>
                 </div>
-                <div className="ad-row-line">{c.message}</div>
+                <div className="cms-row-line">{c.message}</div>
               </div>
-              <div className="ad-row-meta">{when(c.created_at)}</div>
-              <div className="ad-row-actions" onClick={(e) => e.stopPropagation()}>
+              <div className="cms-row-meta">{when(c.created_at)}</div>
+              <div className="cms-row-actions" onClick={(e) => e.stopPropagation()}>
                 {c.status !== 'approved' && (
-                  <button className="ad-icon-btn" title="Approve" onClick={() => changeStatus(c.id, 'approved')}>
+                  <button className="cms-icon-btn" title="Approve" onClick={() => changeStatus(c.id, 'approved')}>
                     <Icon name="check" />
                   </button>
                 )}
                 {c.status !== 'rejected' && (
-                  <button className="ad-icon-btn" title="Reject" onClick={() => changeStatus(c.id, 'rejected')}>
+                  <button className="cms-icon-btn" title="Reject" onClick={() => changeStatus(c.id, 'rejected')}>
                     <Icon name="x" />
                   </button>
                 )}
@@ -136,32 +136,32 @@ function MessagePanel({ id, onClose, onStatus, onDelete }: PanelProps) {
   }
 
   return (
-    <div className="ad-drawer-wrap" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <aside className="ad-drawer ad-drawer-sm">
-        <div className="ad-drawer-h">
+    <div className="cms-drawer-wrap" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <aside className="cms-drawer cms-drawer-sm">
+        <div className="cms-drawer-h">
           <strong>{c ? c.name : 'Loading'}</strong>
-          <button className="ad-icon-btn" onClick={onClose} aria-label="Close"><Icon name="x" /></button>
+          <button className="cms-icon-btn" onClick={onClose} aria-label="Close"><Icon name="x" /></button>
         </div>
-        <div className="ad-drawer-body">
+        <div className="cms-drawer-body">
           {c && (
             <>
-              <div className="ad-muted">
+              <div className="cms-muted">
                 {c.relation} · {new Date(c.created_at).toLocaleString()} ·{' '}
-                <span className={`ad-status ad-status-${c.status}`}>{LABELS[c.status]}</span>
+                <span className={`cms-status cms-status-${c.status}`}>{LABELS[c.status]}</span>
               </div>
-              <blockquote className="ad-quote">{c.message}</blockquote>
+              <blockquote className="cms-quote">{c.message}</blockquote>
             </>
           )}
         </div>
         {c && (
-          <div className="ad-drawer-f">
-            <button className="ad-btn ad-btn-danger" onClick={() => onDelete(id)}>
+          <div className="cms-drawer-f">
+            <button className="cms-btn cms-btn-danger" onClick={() => onDelete(id)}>
               <Icon name="trash" /> Delete
             </button>
-            <span className="ad-muted" />
-            {c.status !== 'rejected' && <button className="ad-btn" onClick={() => change('rejected')}>Reject</button>}
+            <span className="cms-muted" />
+            {c.status !== 'rejected' && <button className="cms-btn" onClick={() => change('rejected')}>Reject</button>}
             {c.status !== 'approved' && (
-              <button className="ad-btn ad-btn-primary" onClick={() => change('approved')}>Approve</button>
+              <button className="cms-btn cms-btn-primary" onClick={() => change('approved')}>Approve</button>
             )}
           </div>
         )}

@@ -87,15 +87,15 @@ export function Eulogy() {
 
   return (
     <>
-      <div className="ad-h">
+      <div className="cms-h">
         <h2>Eulogy</h2>
-        <div className="ad-inline">
+        <div className="cms-inline">
           {pages.length > 0 && (
-            <button className="ad-btn ad-btn-danger" onClick={clear} disabled={busy}>
+            <button className="cms-btn cms-btn-danger" onClick={clear} disabled={busy}>
               <Icon name="trash" /> Remove
             </button>
           )}
-          <button className="ad-btn ad-btn-primary" onClick={() => input.current?.click()} disabled={busy}>
+          <button className="cms-btn cms-btn-primary" onClick={() => input.current?.click()} disabled={busy}>
             <Icon name="upload" /> {pages.length ? 'Replace PDF' : 'Upload PDF'}
           </button>
           <input
@@ -111,17 +111,17 @@ export function Eulogy() {
           />
         </div>
       </div>
-      <p className="ad-muted ad-gap">
+      <p className="cms-muted cms-gap">
         Your browser turns each page into an image. The PDF itself is never uploaded, so visitors can read it
         on the site but there is no file to download.
       </p>
-      {status && <div className="ad-card ad-gap">{status}</div>}
+      {status && <div className="cms-card cms-gap">{status}</div>}
       {pages.length === 0 ? (
-        <div className="ad-card ad-muted">No eulogy yet.</div>
+        <div className="cms-card cms-muted">No eulogy yet.</div>
       ) : (
-        <div className="ad-pages">
+        <div className="cms-pages">
           {pages.map((p, i) => (
-            <figure key={p.id} className="ad-page">
+            <figure key={p.id} className="cms-page">
               <img src={`/media/${p.file}/480.webp`} alt={`Page ${i + 1}`} loading="lazy" />
               <figcaption>Page {i + 1}</figcaption>
             </figure>

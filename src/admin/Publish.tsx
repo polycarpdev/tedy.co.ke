@@ -39,12 +39,12 @@ export function Publish() {
 
   return (
     <button
-      className={`ad-btn ad-btn-primary ad-publish${state?.changed && !running ? ' has-changes' : ''}`}
+      className={`cms-btn cms-btn-primary cms-publish${state?.changed && !running ? ' has-changes' : ''}`}
       onClick={publish}
       disabled={busy || running}
       title={title}
     >
-      {running && <span className="ad-spin" aria-hidden="true" />}
+      {running && <span className="cms-spin" aria-hidden="true" />}
       {label}
     </button>
   );

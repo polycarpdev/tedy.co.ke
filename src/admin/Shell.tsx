@@ -34,13 +34,13 @@ export function Shell({ admin, onSignOut }: { admin: Admin; onSignOut: () => voi
 
   return (
     <>
-      <header className="ad-top">
-        <div className="ad-brand">Tedy <span>admin</span></div>
-        <nav className="ad-nav">
+      <header className="cms-top">
+        <div className="cms-brand">Tedy <span>admin</span></div>
+        <nav className="cms-nav">
           {TABS.map((t) => (
             <button
               key={t.id}
-              className="ad-tab"
+              className="cms-tab"
               aria-current={tab === t.id ? 'page' : undefined}
               onClick={() => (location.hash = t.id)}
             >
@@ -49,19 +49,19 @@ export function Shell({ admin, onSignOut }: { admin: Admin; onSignOut: () => voi
             </button>
           ))}
         </nav>
-        <div className="ad-actions">
-          <a className="ad-btn" href="/" target="_blank" rel="noreferrer">
+        <div className="cms-actions">
+          <a className="cms-btn" href="/" target="_blank" rel="noreferrer">
             <Icon name="open" />
-            <span className="ad-hide-sm">View site</span>
+            <span className="cms-hide-sm">View site</span>
           </a>
           <Publish />
           <Bell />
-          <button className="ad-btn" onClick={signOut} title={`Sign out ${admin.name}`} aria-label="Sign out">
+          <button className="cms-btn" onClick={signOut} title={`Sign out ${admin.name}`} aria-label="Sign out">
             <Icon name="sign-out" />
           </button>
         </div>
       </header>
-      <main className="ad-main">
+      <main className="cms-main">
         {tab === 'overview' && <Overview admin={admin} />}
         {tab === 'stops' && <Stops />}
         {tab === 'eulogy' && <Eulogy />}

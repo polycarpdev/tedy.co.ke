@@ -52,24 +52,24 @@ export function Bell() {
   }
 
   return (
-    <div className="ad-bell" ref={ref}>
-      <button className="ad-btn" onClick={() => setOpen((o) => !o)} aria-label="Notifications">
+    <div className="cms-bell" ref={ref}>
+      <button className="cms-btn" onClick={() => setOpen((o) => !o)} aria-label="Notifications">
         <Icon name="bell" />
-        {feed.unread > 0 && <span className="ad-badge">{feed.unread > 99 ? '99+' : feed.unread}</span>}
+        {feed.unread > 0 && <span className="cms-badge">{feed.unread > 99 ? '99+' : feed.unread}</span>}
       </button>
       {open && (
-        <div className="ad-pop">
-          <div className="ad-pop-h">
+        <div className="cms-pop">
+          <div className="cms-pop-h">
             <strong>Notifications</strong>
-            {feed.unread > 0 && <button className="ad-link" onClick={readAll}>Mark all read</button>}
+            {feed.unread > 0 && <button className="cms-link" onClick={readAll}>Mark all read</button>}
           </div>
           {feed.items.length === 0 ? (
-            <div className="ad-empty">Nothing yet.</div>
+            <div className="cms-empty">Nothing yet.</div>
           ) : (
             feed.items.map((n) => (
-              <button key={n.id} className={`ad-note${n.read_at ? '' : ' is-unread'}`} onClick={() => openItem(n)}>
-                <div className="ad-note-t">{n.title}</div>
-                <div className="ad-note-d">{ago(n.created_at)}</div>
+              <button key={n.id} className={`cms-note${n.read_at ? '' : ' is-unread'}`} onClick={() => openItem(n)}>
+                <div className="cms-note-t">{n.title}</div>
+                <div className="cms-note-d">{ago(n.created_at)}</div>
               </button>
             ))
           )}

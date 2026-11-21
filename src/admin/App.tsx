@@ -16,7 +16,7 @@ export default function App() {
       .finally(() => setChecking(false));
   }, []);
 
-  if (checking) return <div className="ad-loading">Loading</div>;
+  if (checking) return <div className="cms-loading">Loading</div>;
   if (!admin) return <Login onDone={setAdmin} />;
   return <Shell admin={admin} onSignOut={() => setAdmin(null)} />;
 }

@@ -53,35 +53,35 @@ export function Stops() {
 
   return (
     <>
-      <div className="ad-h">
+      <div className="cms-h">
         <h2>Stops</h2>
-        <button className="ad-btn ad-btn-primary" onClick={add} disabled={busy}>
+        <button className="cms-btn cms-btn-primary" onClick={add} disabled={busy}>
           <Icon name="plus" /> Add stop
         </button>
       </div>
-      <div className="ad-table">
+      <div className="cms-table">
         {rows.map((s, i) => (
-          <div key={s.id} className={`ad-row${openId === s.id ? ' is-open' : ''}`} onClick={() => open(s.id)}>
-            <div className="ad-thumb">
+          <div key={s.id} className={`cms-row${openId === s.id ? ' is-open' : ''}`} onClick={() => open(s.id)}>
+            <div className="cms-thumb">
               {s.cover ? <img src={`/media/${s.cover}/480.webp`} alt="" loading="lazy" /> : <Icon name="image" />}
             </div>
-            <div className="ad-row-year">{s.year_label || (s.year_end ? `${s.year}–${s.year_end}` : s.year)}</div>
-            <div className="ad-row-main">
-              <div className="ad-row-title">
+            <div className="cms-row-year">{s.year_label || (s.year_end ? `${s.year}–${s.year_end}` : s.year)}</div>
+            <div className="cms-row-main">
+              <div className="cms-row-title">
                 {s.title}
-                {!s.published && <span className="ad-pill">Hidden</span>}
+                {!s.published && <span className="cms-pill">Hidden</span>}
               </div>
-              <div className="ad-row-line">{s.line}</div>
+              <div className="cms-row-line">{s.line}</div>
             </div>
-            <div className="ad-row-meta">
+            <div className="cms-row-meta">
               {s.media_count} photo{s.media_count === 1 ? '' : 's'}
             </div>
-            <div className="ad-row-actions" onClick={(e) => e.stopPropagation()}>
-              <button className="ad-icon-btn" onClick={() => move(s.id, -1)} disabled={i === 0} aria-label="Move up">
+            <div className="cms-row-actions" onClick={(e) => e.stopPropagation()}>
+              <button className="cms-icon-btn" onClick={() => move(s.id, -1)} disabled={i === 0} aria-label="Move up">
                 <Icon name="up" />
               </button>
               <button
-                className="ad-icon-btn"
+                className="cms-icon-btn"
                 onClick={() => move(s.id, 1)}
                 disabled={i === rows.length - 1}
                 aria-label="Move down"

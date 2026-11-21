@@ -21,20 +21,20 @@ export function Overview({ admin }: { admin: Admin }) {
 
   return (
     <>
-      <div className="ad-h">
+      <div className="cms-h">
         <h2>Welcome back, {admin.name}</h2>
-        <span className="ad-muted">Everything at a glance</span>
+        <span className="cms-muted">Everything at a glance</span>
       </div>
-      <div className="ad-stats">
+      <div className="cms-stats">
         {stats.map((x) => (
           <button
             key={x.l}
-            className={`ad-card ad-stat${x.alert ? ' ad-stat-alert' : ''}`}
+            className={`cms-card cms-stat${x.alert ? ' cms-stat-alert' : ''}`}
             onClick={() => x.link && (location.hash = x.link)}
             disabled={!x.link}
           >
-            <div className="ad-stat-n">{x.n}</div>
-            <div className="ad-stat-l">{x.l}</div>
+            <div className="cms-stat-n">{x.n}</div>
+            <div className="cms-stat-l">{x.l}</div>
           </button>
         ))}
       </div>

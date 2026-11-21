@@ -21,21 +21,21 @@ export function Login({ onDone }: { onDone: (a: Admin) => void }) {
   }
 
   return (
-    <div className="ad-login">
+    <div className="cms-login">
       <form onSubmit={submit}>
         <h1>Tedy admin</h1>
-        <label className="ad-field">
+        <label className="cms-field">
           Email
-          <input className="ad-input" type="email" autoComplete="username" value={email}
+          <input className="cms-input" type="email" autoComplete="username" value={email}
             onChange={(e) => setEmail(e.target.value)} required />
         </label>
-        <label className="ad-field">
+        <label className="cms-field">
           Password
-          <input className="ad-input" type="password" autoComplete="current-password" value={password}
+          <input className="cms-input" type="password" autoComplete="current-password" value={password}
             onChange={(e) => setPassword(e.target.value)} required />
         </label>
-        {error && <p className="ad-error">{error}</p>}
-        <button className="ad-btn ad-btn-primary" disabled={busy}>{busy ? 'Signing in' : 'Sign in'}</button>
+        {error && <p className="cms-error">{error}</p>}
+        <button className="cms-btn cms-btn-primary" disabled={busy}>{busy ? 'Signing in' : 'Sign in'}</button>
       </form>
     </div>
   );

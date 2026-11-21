@@ -52,14 +52,14 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
   }
 
   return (
-    <section className="ad-media">
-      <div className="ad-media-h">
+    <section className="cms-media">
+      <div className="cms-media-h">
         <strong>Photos</strong>
-        <span className="ad-muted">{media.length}</span>
+        <span className="cms-muted">{media.length}</span>
       </div>
 
       <div
-        className={`ad-drop${drag ? ' is-drag' : ''}`}
+        className={`cms-drop${drag ? ' is-drag' : ''}`}
         onClick={() => input.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -74,7 +74,7 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
       >
         <Icon name="upload" size={22} />
         <span>Drop photos here or click to choose</span>
-        <span className="ad-muted">JPG, PNG or WebP, up to 25 MB each</span>
+        <span className="cms-muted">JPG, PNG or WebP, up to 25 MB each</span>
         <input
           ref={input}
           type="file"
@@ -89,46 +89,46 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
       </div>
 
       {jobs.length > 0 && (
-        <ul className="ad-jobs">
+        <ul className="cms-jobs">
           {jobs.map((j, i) => (
             <li key={i}>
               <span>{j.name}</span>
               {j.error ? (
-                <span className="ad-error">{j.error}</span>
+                <span className="cms-error">{j.error}</span>
               ) : (
-                <span className="ad-bar"><span style={{ width: `${j.progress * 100}%` }} /></span>
+                <span className="cms-bar"><span style={{ width: `${j.progress * 100}%` }} /></span>
               )}
             </li>
           ))}
         </ul>
       )}
 
-      <div className="ad-photos">
+      <div className="cms-photos">
         {media.map((m, i) => (
-          <figure key={m.id} className={`ad-photo${m.is_cover ? ' is-cover' : ''}`}>
+          <figure key={m.id} className={`cms-photo${m.is_cover ? ' is-cover' : ''}`}>
             <img src={`/media/${m.file}/480.webp`} alt={m.alt} loading="lazy" />
-            <div className="ad-photo-tools">
-              <button className="ad-icon-btn ad-star" title="Set as cover"
+            <div className="cms-photo-tools">
+              <button className="cms-icon-btn cms-star" title="Set as cover"
                 onClick={() => act(`/admin/media/${m.id}/cover`)}>
                 <Icon name="star" />
               </button>
               <span>
-                <button className="ad-icon-btn" title="Move left" disabled={i === 0}
+                <button className="cms-icon-btn" title="Move left" disabled={i === 0}
                   onClick={() => act(`/admin/media/${m.id}/move`, 'POST', { dir: -1 })}>
                   <Icon name="left" />
                 </button>
-                <button className="ad-icon-btn" title="Move right" disabled={i === media.length - 1}
+                <button className="cms-icon-btn" title="Move right" disabled={i === media.length - 1}
                   onClick={() => act(`/admin/media/${m.id}/move`, 'POST', { dir: 1 })}>
                   <Icon name="right" />
                 </button>
               </span>
-              <button className="ad-icon-btn" title="Delete"
+              <button className="cms-icon-btn" title="Delete"
                 onClick={() => confirm('Delete this photo?') && act(`/admin/media/${m.id}`, 'DELETE')}>
                 <Icon name="trash" />
               </button>
             </div>
             <input
-              className="ad-input ad-caption"
+              className="cms-input cms-caption"
               placeholder="Caption"
               defaultValue={m.caption}
               maxLength={300}
@@ -137,7 +137,7 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
               }}
             />
             <button
-              className={`ad-tag${m.by_tedy ? " is-on" : ""}`}
+              className={`cms-tag${m.by_tedy ? " is-on" : ""}`}
               onClick={() => act(`/admin/media/${m.id}`, "PUT", { by_tedy: !m.by_tedy })}
             >
               <Icon name="camera" size={14} /> Taken by Tedy
