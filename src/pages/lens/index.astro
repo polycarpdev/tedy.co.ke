@@ -10,6 +10,8 @@ const stops = await getStops();
 const photos = stops.flatMap((s) => s.media.map((m) => ({ m, s })));
 const byCount = photos.filter((p) => p.m.by_tedy).length;
 const chapters = stops.filter((s) => s.media.length > 0);
+const pad = (i: number) => String(i).padStart(2, '0');
+const ratio = (m: PhotoData) => (m.width / (m.height || 1)).toFixed(4);
 
 const srcset = (m: PhotoData) => {
   const long = Math.max(m.width, m.height) || 1;
@@ -21,59 +23,102 @@ const srcset = (m: PhotoData) => {
     .join(', ');
 };
 const metaFor = (s: Stop) => [yearText(s), s.title, s.place].filter(Boolean).join(' · ');
+const first = photos[0];
 ---
-<Base title="Through the Lens" description="Photos of Tedy, and photos he took.">
-  <div class="lens" data-lens>
-    <header class="lens-head">
-      <p class="lens-eyebrow">Gallery</p>
-      <h1>Through the Lens</h1>
-      <p class="lens-intro">Photos of him, and photos he took.</p>
+<Base title="Through the Lens" description="His film roll: photos of Tedy, and photos he took.">
+  <div class="roll" data-roll data-view="strip">
+    <header class="roll-head">
+      <div>
+        <p class="roll-eyebrow">His film roll</p>
+        <h1>Through the Lens</h1>
+      </div>
+      {photos.length > 0 && (
+        <div class="roll-tools">
+          <button class="roll-tool" type="button" data-view-toggle aria-pressed="false">
+            <span class="when-off"><Icon name="squares-four" /> <span class="roll-tool-label">Contact sheet</span></span>
+            <span class="when-on"><Icon name="film-strip" /> <span class="roll-tool-label">Film roll</span></span>
+          </button>
+          <button class="roll-tool roll-sound" type="button" data-sound aria-pressed="true" aria-label="Shutter sound">
+            <span class="when-off"><Icon name="speaker-slash" /></span>
+            <span class="when-on"><Icon name="speaker-high" /></span>
+          </button>
+        </div>
+      )}
     </header>
 
     {photos.length === 0 ? (
-      <p class="lens-empty">Photos will appear here soon.</p>
+      <p class="roll-empty">Photos will appear here soon.</p>
     ) : (
       <>
-        <div class="chips" role="toolbar" aria-label="Filter photos">
-          <button class="chip" type="button" data-filter="all" aria-pressed="true">
-            All <span>{photos.length}</span>
+        <div class="roll-chips" role="toolbar" aria-label="Choose a roll">
+          <button class="roll-chip" type="button" data-filter="all" aria-pressed="true">
+            All frames <span>{photos.length}</span>
           </button>
-          <button class="chip" type="button" data-filter="of" aria-pressed="false">
+          <button class="roll-chip" type="button" data-filter="of" aria-pressed="false">
             Of him <span>{photos.length - byCount}</span>
           </button>
           {byCount > 0 && (
-            <button class="chip" type="button" data-filter="by" aria-pressed="false">
-              <Icon name="camera" size="1em" /> By Tedy <span>{byCount}</span>
+            <button class="roll-chip" type="button" data-filter="by" aria-pressed="false">
+              By Tedy <span>{byCount}</span>
             </button>
           )}
           {chapters.map((s) => (
-            <button class="chip" type="button" data-filter={`stop:${s.slug}`} aria-pressed="false">
+            <button class="roll-chip" type="button" data-filter={`stop:${s.slug}`} aria-pressed="false">
               {s.title} <span>{s.media.length}</span>
             </button>
           ))}
         </div>
 
-        <div class="lens-wall">
+        <section class="film" aria-label="Film strip">
+          <div class="strip" data-strip>
+            {photos.map(({ m, s }, i) => (
+              <figure
+                class="frame"
+                data-frame
+                data-index={i}
+                data-stop={s.slug}
+                data-by={m.by_tedy ? '1' : '0'}
+                data-src={`/media/${m.file}/1600.webp`}
+                data-srcset={srcset(m)}
+                data-w={m.width}
+                data-h={m.height}
+                data-alt={m.alt || m.caption || s.title}
+                data-meta={metaFor(s)}
+                data-caption={m.caption}
+                style={`--ar:${ratio(m)}`}
+              >
+                <span class="frame-edge" aria-hidden="true">TEDY 400</span>
+                <button class="frame-shot" type="button" data-shot aria-label={`Frame ${i + 1}: ${m.caption || s.title}`}>
+                  <Photo photo={m} sizes="(min-width: 1024px) 60vw, 86vw" eager={i < 3} />
+                </button>
+                <span class="frame-no" aria-hidden="true">▸ {pad(i + 1)} <span>{pad(i + 1)}A</span></span>
+              </figure>
+            ))}
+          </div>
+          <button class="film-btn film-prev" type="button" data-prev aria-label="Previous frame"><Icon name="caret-left" /></button>
+          <button class="film-btn film-next" type="button" data-next aria-label="Next frame"><Icon name="caret-right" /></button>
+        </section>
+
+        <div class="roll-info" aria-live="polite">
+          <p class="ri-count" data-ri-count>01 / {pad(photos.length)}</p>
+          <p class="ri-meta" data-ri-meta>{first && metaFor(first.s)}</p>
+          <p class="ri-caption" data-ri-caption hidden={!first?.m.caption}>{first?.m.caption}</p>
+          <p class="ri-by" data-ri-by hidden={!first?.m.by_tedy}><Icon name="camera" size="1em" /> Photo by Tedy</p>
+        </div>
+
+        <div class="contact" data-contact>
           {photos.map(({ m, s }, i) => (
             <button
-              class="tile"
+              class="cs-tile"
               type="button"
-              data-tile
-              style={`--ar:${(m.width / (m.height || 1)).toFixed(4)}`}
+              data-cs={i}
               data-stop={s.slug}
               data-by={m.by_tedy ? '1' : '0'}
-              data-src={`/media/${m.file}/1600.webp`}
-              data-srcset={srcset(m)}
-              data-w={m.width}
-              data-h={m.height}
-              data-alt={m.alt || m.caption || s.title}
-              data-meta={metaFor(s)}
-              data-caption={m.caption}
-              aria-label={`Open photo: ${m.caption || s.title}`}
+              style={`--ar:${ratio(m)}`}
+              aria-label={`Go to frame ${i + 1}`}
             >
-              <Photo photo={m} sizes="(min-width: 1600px) 18vw, (min-width: 1024px) 23vw, (min-width: 640px) 33vw, 50vw" eager={i < 6} />
-              <span class="tile-year">{yearText(s)}</span>
-              {m.by_tedy && <span class="tile-by" title="Photo by Tedy"><Icon name="camera" size="0.9rem" /></span>}
+              <Photo photo={m} sizes="(min-width: 1024px) 20vw, 45vw" />
+              <span class="cs-no">{pad(i + 1)}</span>
             </button>
           ))}
         </div>
@@ -112,7 +157,7 @@ const metaFor = (s: Stop) => [yearText(s), s.title, s.place].filter(Boolean).joi
   document.addEventListener('astro:page-load', () => {
     cleanup?.();
     cleanup = null;
-    const root = document.querySelector<HTMLElement>('[data-lens]');
+    const root = document.querySelector<HTMLElement>('[data-roll]');
     if (root) cleanup = initLens(root);
   });
 
