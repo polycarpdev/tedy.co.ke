@@ -137,3 +137,7 @@
   40% { opacity: 0.15; }
   100% { opacity: 1; }
 }
+
+.tedy.is-pointing .arm-front .upper { transform: rotate(-138deg); }
+.tedy.is-pointing .arm-front .fore { transform: rotate(-4deg); }
+.tedy.is-pointing .head { transform: rotate(-9deg); }
