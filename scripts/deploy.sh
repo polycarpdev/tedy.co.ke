@@ -72,6 +72,7 @@ deploy_api() {
   fi
   mkdir -p tmp
   touch tmp/restart.txt
+  pkill -u "$(id -un)" -f "lsnode:$HOME/tedy-api/" || true
   set +u
   deactivate 2>/dev/null || true
   set -u
