@@ -50,13 +50,13 @@ const data = JSON.stringify(
             {'Tedy'.split('').map((c, i) => <span aria-hidden="true" style={`--i:${i}`}>{c}</span>)}
           </h1>
           <p class="hero-dates">07.07.1999 <span>—</span> 11.11.2026</p>
-          <div class="candle" data-candle>
-            <span class="candle-art" aria-hidden="true"><span class="candle-flame"></span></span>
+          <button class="candle" type="button" data-candle data-candle-btn>
+            <span class="candle-art" aria-hidden="true"><span class="candle-flame"></span><span class="candle-spark"></span></span>
             <span class="candle-text">
-              <span><b data-candle-count>–</b> candles lit for Tedy</span>
-              <button class="candle-btn" type="button" data-candle-btn>Light a candle</button>
+              <span class="candle-cta" data-candle-label>Light a candle for Tedy</span>
+              <span class="candle-sub"><b data-candle-count>–</b> candles burning</span>
             </span>
-          </div>
+          </button>
           <div class="hero-actions">
             <button class="btn" type="button" data-begin>Begin the walk <Icon name="arrow-right" /></button>
             <a class="link" href="/eulogy/">Read the eulogy</a>
@@ -93,13 +93,13 @@ const data = JSON.stringify(
               <p class="stop-line">{s.line}</p>
               {i === last ? (
                 <div class="stop-actions">
-                  <div class="candle" data-candle>
-                    <span class="candle-art" aria-hidden="true"><span class="candle-flame"></span></span>
+                  <button class="candle" type="button" data-candle data-candle-btn>
+                    <span class="candle-art" aria-hidden="true"><span class="candle-flame"></span><span class="candle-spark"></span></span>
                     <span class="candle-text">
-                      <span><b data-candle-count>–</b> candles lit. Each one is a star above.</span>
-                      <button class="candle-btn" type="button" data-candle-btn>Light a candle</button>
+                      <span class="candle-cta" data-candle-label>Light a candle for Tedy</span>
+                      <span class="candle-sub"><b data-candle-count>–</b> candles burning. Each one is a star above.</span>
                     </span>
-                  </div>
+                  </button>
                   <a class="btn" href="/campfire/">Leave a memory</a>
                   <a class="link" href="/eulogy/">Read the eulogy</a>
                 </div>

@@ -18,12 +18,18 @@ function markLit() {
   }
 }
 
+function setLabel(b: HTMLButtonElement, text: string) {
+  const label = b.querySelector<HTMLElement>('[data-candle-label]') || b;
+  label.textContent = text;
+}
+
 export function initCandles(root: ParentNode, onCount?: (count: number) => void): () => void {
   const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-candle-btn]')];
   const counts = [...root.querySelectorAll<HTMLElement>('[data-candle-count]')];
   const wraps = [...root.querySelectorAll<HTMLElement>('[data-candle]')];
   let alive = true;
   let shown: number | null = null;
+  const timers: number[] = [];
 
   function render(count: number | null, lit: boolean) {
     if (count !== null) {
@@ -42,7 +48,7 @@ export function initCandles(root: ParentNode, onCount?: (count: number) => void)
     wraps.forEach((w) => w.classList.toggle('is-lit', lit));
     buttons.forEach((b) => {
       b.disabled = lit;
-      b.textContent = lit ? 'You lit a candle' : 'Light a candle';
+      setLabel(b, lit ? 'Your candle is burning' : 'Light a candle for Tedy');
     });
   }
 
@@ -54,14 +60,18 @@ export function initCandles(root: ParentNode, onCount?: (count: number) => void)
 
   const onClick = async (e: Event) => {
     const b = e.currentTarget as HTMLButtonElement;
+    const wrap = b.closest<HTMLElement>('[data-candle]') || b;
     b.disabled = true;
-    b.textContent = 'Lighting';
+    setLabel(b, 'Lighting');
     try {
       const r = await fetch('/api/public/candles', { method: 'POST' });
       const d = await r.json();
       if (!r.ok) throw new Error('failed');
       markLit();
-      if (alive) render(d.count, true);
+      if (!alive) return;
+      render(d.count, true);
+      wrap.classList.add('is-sparking');
+      timers.push(window.setTimeout(() => wrap.classList.remove('is-sparking'), 1600));
     } catch {
       if (alive) render(null, isLit());
     }
@@ -70,6 +80,7 @@ export function initCandles(root: ParentNode, onCount?: (count: number) => void)
   buttons.forEach((b) => b.addEventListener('click', onClick));
   return () => {
     alive = false;
+    timers.forEach(clearTimeout);
     buttons.forEach((b) => b.removeEventListener('click', onClick));
   };
 }
