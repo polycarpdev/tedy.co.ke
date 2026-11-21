@@ -18,6 +18,9 @@ function markLit() {
   }
 }
 
+const lightText = () =>
+  matchMedia('(pointer: fine)').matches ? 'Click to light a candle for Tedy' : 'Tap to light a candle for Tedy';
+
 function setLabel(b: HTMLButtonElement, text: string) {
   const label = b.querySelector<HTMLElement>('[data-candle-label]') || b;
   label.textContent = text;
@@ -48,7 +51,7 @@ export function initCandles(root: ParentNode, onCount?: (count: number) => void)
     wraps.forEach((w) => w.classList.toggle('is-lit', lit));
     buttons.forEach((b) => {
       b.disabled = lit;
-      setLabel(b, lit ? 'Your candle is burning' : 'Light a candle for Tedy');
+      setLabel(b, lit ? 'Your candle is burning' : lightText());
     });
   }
 

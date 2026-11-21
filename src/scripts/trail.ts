@@ -223,7 +223,7 @@ export function initTrail(root: HTMLElement): () => void {
     let tease = 0;
     if (atState === 'start' && !openSlug && current < 1 && now - lastInteract > 1800) {
       const k = (now - lastInteract - 1800) % 3600;
-      if (k < 1200) tease = Math.sin((k / 1200) * Math.PI) * W * 0.14;
+      if (k < 0) tease = 0;
     }
     const view = current + tease;
 
