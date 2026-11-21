@@ -168,3 +168,11 @@ publicRoutes.post('/candles', limit(10, HOUR), async (req, res) => {
   const { rows } = await pool.query('SELECT count(*)::int AS n FROM candles');
   res.json({ count: rows[0].n });
 });
+
+publicRoutes.get('/eulogy', async (_req, res) => {
+  const { rows } = await pool.query(
+    `SELECT file, width, height FROM media WHERE kind = 'page' ORDER BY position, id`
+  );
+  res.set('Cache-Control', 'no-store');
+  res.json({ pages: rows });
+});

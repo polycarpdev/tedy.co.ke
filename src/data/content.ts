@@ -8,11 +8,17 @@ export type Photo = {
   caption: string;
   alt: string;
   is_cover: boolean;
+  by_tedy: boolean;
 };
+
+export type Page = { file: string; width: number; height: number };
 
 export type Stop = {
   slug: string;
   year: number;
+  year_end: number | null;
+  year_label: string;
+  place: string;
   title: string;
   line: string;
   body: string;
@@ -23,27 +29,44 @@ export type Stop = {
   cover: Photo | null;
 };
 
-const SOURCE = process.env.CONTENT_URL || 'https://tedy.co.ke/api/public/content';
-const PAGES: Record<string, string> = { lens: '/lens/', studio: '/studio/', campfire: '/campfire/' };
+const BASE = (process.env.CONTENT_URL || 'https://tedy.co.ke/api/public/content').replace(/\/content$/, '');
+const PAGES: Record<string, string> = { campfire: '/campfire/' };
 
-const hrefFor = (slug: string) => PAGES[slug] || `/story/#${slug}`;
+export const yearText = (s: Pick<Stop, 'year' | 'year_end' | 'year_label'>) =>
+  s.year_label || (s.year_end ? `${s.year}–${s.year_end}` : String(s.year));
 
-async function load(): Promise<Stop[]> {
+async function getJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, { signal: AbortSignal.timeout(15000) });
+  if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+async function loadStops(): Promise<Stop[]> {
   try {
-    const res = await fetch(SOURCE, { signal: AbortSignal.timeout(15000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = (await res.json()) as { stops: Omit<Stop, 'href' | 'cover'>[] };
+    const data = await getJson<{ stops: Omit<Stop, 'href' | 'cover'>[] }>('/content');
     if (!data.stops?.length) throw new Error('No stops returned');
     return data.stops.map((s) => ({
       ...s,
-      href: hrefFor(s.slug),
+      href: PAGES[s.slug] || `/story/#${s.slug}`,
       cover: s.media.find((m) => m.is_cover) || s.media[0] || null,
     }));
   } catch (err) {
     console.warn(`[content] Using built-in trail data: ${(err as Error).message}`);
-    return TRAIL.map((t) => ({ ...t, body: '', media: [], cover: null }));
+    return TRAIL.map((t) => ({ ...t, place: '', year_end: null, year_label: '', body: '', media: [], cover: null }));
   }
 }
 
-let cache: Promise<Stop[]> | null = null;
-export const getStops = () => (cache ??= load());
+async function loadEulogy(): Promise<Page[]> {
+  try {
+    const data = await getJson<{ pages: Page[] }>('/eulogy');
+    return data.pages || [];
+  } catch (err) {
+    console.warn(`[content] No eulogy: ${(err as Error).message}`);
+    return [];
+  }
+}
+
+let stops: Promise<Stop[]> | null = null;
+let eulogy: Promise<Page[]> | null = null;
+export const getStops = () => (stops ??= loadStops());
+export const getEulogy = () => (eulogy ??= loadEulogy());

@@ -6,6 +6,7 @@ import { notify } from '../notify.mjs';
 import { touch } from '../meta.mjs';
 import { stops } from './stops.mjs';
 import { condolences } from './condolences.mjs';
+import { eulogy } from './eulogy.mjs';
 
 export const admin = Router();
 admin.use(requireAdmin);
@@ -23,7 +24,7 @@ admin.get('/summary', async (_req, res) => {
   const { rows } = await pool.query(`
     SELECT
       (SELECT count(*)::int FROM stops) AS stops,
-      (SELECT count(*)::int FROM media) AS media,
+      (SELECT count(*)::int FROM media WHERE kind = 'photo') AS media,
       (SELECT count(*)::int FROM condolences WHERE status = 'pending') AS pending,
       (SELECT count(*)::int FROM condolences WHERE status = 'approved') AS approved,
       (SELECT count(*)::int FROM candles) AS candles
@@ -106,3 +107,4 @@ admin.post('/publish', async (_req, res) => {
 
 admin.use(stops);
 admin.use(condolences);
+admin.use(eulogy);

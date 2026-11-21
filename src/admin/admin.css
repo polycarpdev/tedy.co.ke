@@ -380,3 +380,10 @@ textarea.ad-input { resize: vertical; line-height: 1.55; }
 @media (max-width: 720px) {
   .ad-grid-title, .ad-grid-4 { grid-template-columns: 1fr 1fr; }
 }
+
+.ad-inline { display: flex; gap: 8px; }
+.ad-gap { margin: 0 0 14px; }
+.ad-pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.ad-page { display: grid; gap: 6px; margin: 0; }
+.ad-page img { width: 100%; height: auto; border-radius: 4px; background: #fff; }
+.ad-page figcaption { color: #8b9099; font: 12px "IBM Plex Mono", monospace; }

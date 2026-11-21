@@ -1,6 +1,6 @@
 // public/sw.js
-const VERSION = 'tedy-v2';
-const PAGES = ['/', '/story/', '/lens/', '/studio/', '/campfire/', '/404.html'];
+const VERSION = 'tedy-v3';
+const PAGES = ['/', '/story/', '/eulogy/', '/lens/', '/campfire/', '/404.html'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

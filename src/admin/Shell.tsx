@@ -7,10 +7,12 @@ import { Overview } from './Overview';
 import { Stops } from './Stops';
 import { Publish } from './Publish';
 import { Condolences } from './Condolences';
+import { Eulogy } from './Eulogy';
 
 const TABS: { id: string; label: string; icon: IconName }[] = [
   { id: 'overview', label: 'Overview', icon: 'overview' },
   { id: 'stops', label: 'Stops', icon: 'stops' },
+  { id: 'eulogy', label: 'Eulogy', icon: 'eulogy' },
   { id: 'condolences', label: 'Condolences', icon: 'condolences' },
 ];
 
@@ -62,6 +64,7 @@ export function Shell({ admin, onSignOut }: { admin: Admin; onSignOut: () => voi
       <main className="ad-main">
         {tab === 'overview' && <Overview admin={admin} />}
         {tab === 'stops' && <Stops />}
+        {tab === 'eulogy' && <Eulogy />}
         {tab === 'condolences' && <Condolences />}
       </main>
     </>
