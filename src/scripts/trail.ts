@@ -220,14 +220,6 @@ export function initTrail(root: HTMLElement): () => void {
 
     if (!moved && progress() > 0.004) markMoved();
 
-    let peek = 0;
-    if (atState === 'start' && !openSlug && current < 1 && now - lastInteract > 1500) {
-      const k = (now - lastInteract - 1500) % 5200;
-      const ease = (v: number) => v * v * (3 - 2 * v);
-      if (k < 1100) peek = ease(k / 1100);
-      else if (k < 2300) peek = 1;
-      else if (k < 3400) peek = ease((3400 - k) / 1100);
-    }
     const view = current;
 
     world.style.transform = `translate3d(${-view}px, 0, 0)`;
@@ -238,12 +230,7 @@ export function initTrail(root: HTMLElement): () => void {
       r.style.setProperty('mask-position', v);
     });
     slides.forEach((s, k) => {
-      let d = clamp(k - view / (W || 1), -1.5, 1.5);
-      if (k === 1) {
-        if (peek) d *= 1 - peek * 0.85;
-        s.style.translate = peek ? `${(-peek * W * (W < 768 ? 0.3 : 0.38)).toFixed(1)}px 0` : '';
-        s.classList.toggle('is-peeking', peek > 0.4);
-      }
+      const d = clamp(k - view / (W || 1), -1.5, 1.5);
       s.style.setProperty('--d', d.toFixed(3));
       s.style.setProperty('--ad', Math.abs(d).toFixed(3));
     });

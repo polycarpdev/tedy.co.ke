@@ -844,3 +844,27 @@ html.is-paused { overflow: hidden; }
 .trail[data-at="start"] .nav-next { opacity: 1; pointer-events: auto; animation: none; }
 
 .trail[data-ready] .slide.is-peeking .stop-text > * { opacity: 1; transform: none; }
+
+.slide-hero .hero.hero-gate { position: relative; inset: auto; transform: none; width: 100%; max-width: 40rem; margin: clamp(0.25rem, 4svh, 3rem) auto 0; display: grid; justify-items: center; text-align: center; }
+.hero-gate .hero-dates { justify-content: center; }
+.vigil { display: grid; justify-items: center; gap: 0.9rem; margin-top: clamp(1rem, 3svh, 2rem); }
+.vigil-candle { position: relative; width: 2.4rem; height: 7rem; }
+.vigil-wax { position: absolute; inset: auto 0 0; height: 4.75rem; border-radius: 0.3rem 0.3rem 0.2rem 0.2rem; background: #f4eee4; box-shadow: inset -0.45rem 0 0 rgba(0, 0, 0, 0.06); }
+.vigil-wick { position: absolute; bottom: 4.75rem; left: 50%; width: 2px; height: 0.55rem; translate: -50% 0; background: #2a2420; }
+.vigil-flame { position: absolute; bottom: 5.15rem; left: 50%; width: 1.05rem; height: 1.8rem; margin-left: -0.525rem; border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%; background: radial-gradient(ellipse at 50% 72%, #fff6cf 0 22%, #ffc061 45%, #ff8a3d 78%); transform-origin: 50% 90%; scale: 0; opacity: 0; transition: scale 0.7s cubic-bezier(0.2, 1.5, 0.4, 1), opacity 0.4s; }
+.vigil-glow { position: absolute; bottom: 5.6rem; left: 50%; width: 9rem; height: 9rem; translate: -50% 50%; border-radius: 50%; background: radial-gradient(circle, rgba(255, 168, 80, 0.42), transparent 65%); opacity: 0; transition: opacity 1.4s; pointer-events: none; }
+.vigil.is-lit .vigil-flame { scale: 1; opacity: 1; animation: vigil-flicker 2.6s ease-in-out infinite; }
+.vigil.is-lit .vigil-glow { opacity: 1; animation: vigil-breathe 3.2s ease-in-out infinite; }
+.vigil-count { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; }
+.vigil-count b { font-weight: 500; }
+.vigil-go { display: none; }
+.vigil.is-lit .vigil-light, .vigil.is-lit .vigil-skip { display: none; }
+.vigil.is-lit .vigil-go { display: flex; flex-direction: column; align-items: center; gap: 1rem; animation: vigil-in 0.7s 0.6s both; }
+.vigil-skip { background: none; border: 0; padding: 0.4rem; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: inherit; opacity: 0; text-decoration: underline; text-underline-offset: 0.3em; cursor: pointer; animation: vigil-skip-in 0.6s 5s forwards; }
+
+@keyframes vigil-flicker { 0%, 100% { transform: rotate(-1deg) scaleY(1); } 35% { transform: rotate(1.5deg) scaleY(1.06); } 65% { transform: rotate(-0.5deg) scaleY(0.95); } }
+@keyframes vigil-breathe { 0%, 100% { scale: 1; } 50% { scale: 1.08; } }
+@keyframes vigil-in { from { opacity: 0; translate: 0 0.6rem; } to { opacity: 1; translate: 0 0; } }
+@keyframes vigil-skip-in { to { opacity: 0.55; } }
+
+.trail[data-at="start"] :is(.nav-arrow, .nav-next, .dots, .coach, .bar) { opacity: 0 !important; visibility: hidden; pointer-events: none !important; animation: none !important; }

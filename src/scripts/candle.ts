@@ -51,7 +51,7 @@ export function initCandles(root: ParentNode, onCount?: (count: number) => void)
     wraps.forEach((w) => w.classList.toggle('is-lit', lit));
     buttons.forEach((b) => {
       b.disabled = lit;
-      setLabel(b, lit ? 'Your candle is burning' : lightText());
+      setLabel(b, lit ? 'Your candle is burning' : b.dataset.label || lightText());
     });
   }
 
