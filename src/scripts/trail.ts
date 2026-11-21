@@ -397,6 +397,15 @@ export function initTrail(root: HTMLElement): () => void {
   tedyBtn.addEventListener('click', onTap);
   raf = requestAnimationFrame(frame);
 
+  let resumeY = -1;
+  try {
+    if (sessionStorage.getItem('tedy-resume') === '1') resumeY = Number(sessionStorage.getItem('tedy-trail-y') || -1);
+    sessionStorage.removeItem('tedy-resume');
+  } catch {
+    resumeY = -1;
+  }
+  if (resumeY > 0 && !location.hash) window.scrollTo(0, resumeY);
+
   const deep = location.hash.match(/^#stop\/([\w-]+)$/);
   const deepIndex = deep ? stops.findIndex((s) => s.slug === deep[1]) : -1;
   if (deep && deepIndex >= 0) {
@@ -409,6 +418,11 @@ export function initTrail(root: HTMLElement): () => void {
   }
 
   return () => {
+    try {
+      sessionStorage.setItem('tedy-trail-y', String(window.scrollY));
+    } catch {
+      resumeY = -1;
+    }
     cancelAnimationFrame(raf);
     clearTimeout(bubbleTimer);
     clearTimeout(greetTimer);

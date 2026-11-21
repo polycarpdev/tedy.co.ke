@@ -1,27 +1,31 @@
 ---
 // src/pages/story/index.astro
 import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
 import Photo from '../../components/Photo.astro';
-import { getStops } from '../../data/content';
+import { getStops, yearText } from '../../data/content';
 
 const stops = await getStops();
-const paragraphs = (text: string) =>
-  text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 const pad = (i: number) => String(i + 1).padStart(2, '0');
+const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 ---
-<Base title="His Story" description="The chapters of Tedy's life, told by the people who walked it with him.">
+<Base title="His Story" description="Every chapter of Tedy's life in one place, from Amairo in 1999 to 2026.">
   <div class="story">
     <header class="story-head">
-      <p class="eyebrow">Stop <b>02</b></p>
-      <h1>His Story</h1>
-      <p class="intro">Chapters of a life, told by the people who walked it with him.</p>
+      <p class="story-eyebrow">His story</p>
+      <h1>Thadeus Esirom Etyang</h1>
+      <p class="story-intro">Every chapter in one place, from Amairo in 1999 to the campfire in 2026.</p>
+      <nav class="story-index" aria-label="Chapters">
+        {stops.map((s, i) => <a href={`#${s.slug}`}><b>{pad(i)}</b> {s.title}</a>)}
+      </nav>
     </header>
 
     {stops.map((s, i) => (
       <section class="ch" id={s.slug}>
-        <div class="ch-meta">
-          <span>Stop <b>{pad(i)}</b></span>
-          <span class="ch-year">{s.year}</span>
+        <div class="ch-side">
+          <p class="ch-no">{pad(i)}</p>
+          <p class="ch-year">{yearText(s)}</p>
+          {s.place && <p class="ch-place">{s.place}</p>}
         </div>
         <div class="ch-main">
           <h2>{s.title}</h2>
@@ -30,97 +34,155 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
           {s.media.length > 0 && (
             <div class="ch-photos">
               {s.media.map((m) => (
-                <figure>
-                  <Photo photo={m} sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 92vw" />
-                  {m.caption && <figcaption>{m.caption}</figcaption>}
+                <figure class="ch-ph" style={`--ar:${(m.width / (m.height || 1)).toFixed(4)}`}>
+                  <Photo photo={m} sizes="(min-width: 1024px) 30vw, 60vw" />
+                  {(m.caption || m.by_tedy) && (
+                    <figcaption>
+                      {m.caption && <span>{m.caption}</span>}
+                      {m.by_tedy && <b>Photo by Tedy</b>}
+                    </figcaption>
+                  )}
                 </figure>
               ))}
             </div>
           )}
+          <a class="ch-trail" href={`/#stop/${s.slug}`}>See it on the trail <Icon name="arrow-up-right" /></a>
         </div>
       </section>
     ))}
+
+    <nav class="story-next" aria-label="Keep going">
+      <a href="/lens/"><span>Next</span> His film roll <Icon name="arrow-right" /></a>
+      <a href="/campfire/"><span>Then</span> Light a candle, leave a memory <Icon name="arrow-right" /></a>
+    </nav>
   </div>
 </Base>
 
 <style>
-  .story { max-width: 90rem; margin-inline: auto; padding: 7rem 1.5rem 4rem; }
-  .story-head { display: grid; gap: 0.75rem; margin-bottom: 2.5rem; }
-  .eyebrow,
-  .ch-meta {
+  .story { max-width: 90rem; margin-inline: auto; padding: 6.5rem 1.25rem 4rem; }
+  .story-head { display: grid; gap: 0.75rem; margin-bottom: 2rem; }
+  .story-eyebrow,
+  .ch-no,
+  .ch-place,
+  .story-next span {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--color-muted);
   }
-  .eyebrow b,
-  .ch-meta b { color: var(--color-red); font-weight: 500; }
+  .story-eyebrow, .ch-no { color: var(--color-red); }
   h1 {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(2.75rem, 13vw, 5rem);
+    font-size: clamp(2.4rem, 11vw, 4.5rem);
     letter-spacing: -0.04em;
     line-height: 0.95;
   }
-  .intro { max-width: 48ch; font-size: 1.125rem; color: var(--color-muted); }
-
-  .ch {
-    display: grid;
-    gap: 1rem;
-    padding: 2.5rem 0;
-    border-top: 1px solid var(--color-line);
-    scroll-margin-top: 5rem;
+  .story-intro { max-width: 52ch; font-size: 1.0625rem; color: var(--color-muted); }
+  .story-index {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem -1.25rem 0;
+    padding: 0 1.25rem 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-  .ch-meta { display: flex; gap: 1rem; align-items: baseline; }
-  .ch-main { display: grid; gap: 1rem; }
+  .story-index::-webkit-scrollbar { display: none; }
+  .story-index a {
+    flex: none;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: var(--color-night-2);
+    color: var(--color-ink);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .story-index b { margin-right: 0.3rem; color: var(--color-red); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500; }
+
+  .ch { display: grid; gap: 1rem; padding: 2.25rem 0; border-top: 1px solid var(--color-line); scroll-margin-top: 4.5rem; }
+  .ch-side { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 1rem; }
+  .ch-year { font-family: var(--font-mono); font-size: 1rem; }
+  .ch-place { color: var(--color-muted); }
+  .ch-main { display: grid; gap: 1rem; min-width: 0; }
   h2 {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(2rem, 8vw, 3rem);
-    letter-spacing: -0.03em;
+    font-size: clamp(1.9rem, 8vw, 3rem);
+    letter-spacing: -0.035em;
     line-height: 1;
   }
-  .ch-lead { max-width: 60ch; font-size: 1.25rem; line-height: 1.5; }
-  .ch-p { max-width: 68ch; font-size: 1.0625rem; line-height: 1.7; color: #c9c5bd; }
-  .ch-photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-  }
-  figure { margin: 0; }
-  .ch-photos :global(img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
+  .ch-lead { max-width: 60ch; font-size: 1.2rem; line-height: 1.5; }
+  .ch-p { max-width: 68ch; font-size: 1.0625rem; line-height: 1.75; color: #c9c5bd; }
+
+  .ch-photos { --row: 8rem; display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+  .ch-photos::after { content: ""; flex-grow: 999999; }
+  .ch-ph {
+    position: relative;
+    flex: calc(var(--ar) * 1000) 1 calc(var(--ar) * var(--row));
+    margin: 0;
+    overflow: hidden;
     border-radius: 0.25rem;
     background: var(--color-night-2);
   }
-  figcaption {
-    margin-top: 0.4rem;
+  .ch-ph :global(img) { display: block; width: 100%; height: auto; aspect-ratio: var(--ar); object-fit: cover; }
+  .ch-ph figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.6rem;
+    padding: 1.5rem 0.6rem 0.5rem;
+    background: linear-gradient(to bottom, transparent, rgba(5, 6, 8, 0.85));
+    color: #f2efe9;
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+  .ch-ph figcaption b { color: #ff7a6e; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+  .ch-trail {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--color-red);
+    color: var(--color-ink);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
   }
 
+  .story-next { display: grid; gap: 0.5rem; padding-top: 2rem; border-top: 1px solid var(--color-line); }
+  .story-next a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.6rem;
+    background: var(--color-night-2);
+    color: var(--color-ink);
+    font-size: 1.0625rem;
+    text-decoration: none;
+  }
+  .story-next span { color: var(--color-muted); }
+  .story-next a :global(svg) { margin-left: auto; color: var(--color-red); }
+
+  @media (min-width: 640px) { .ch-photos { --row: 11rem; } }
   @media (min-width: 1024px) {
-    .story { padding: 8rem 2.5rem 5rem; }
-    h1 { font-size: 7rem; }
-    .ch { grid-template-columns: 12rem minmax(0, 1fr); gap: 2.5rem; }
-    .ch-meta {
-      position: sticky;
-      top: 6rem;
-      align-self: start;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .ch-year {
-      font-size: 2.25rem;
-      letter-spacing: 0;
-      color: var(--color-ink);
-    }
+    .story { padding: 9rem 2.5rem 5rem; }
+    h1 { font-size: 6rem; }
+    .story-index { flex-wrap: wrap; margin-inline: 0; padding-inline: 0; overflow: visible; }
+    .ch { grid-template-columns: 12rem minmax(0, 1fr); gap: 2.5rem; padding: 3rem 0; }
+    .ch-side { position: sticky; top: 6rem; align-self: start; flex-direction: column; gap: 0.4rem; }
+    .ch-year { font-size: 2rem; }
+    h2 { font-size: 3.5rem; }
+    .ch-photos { --row: 14rem; gap: 0.5rem; }
+    .story-next { grid-template-columns: 1fr 1fr; }
   }
 </style>

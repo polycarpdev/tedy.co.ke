@@ -4,44 +4,49 @@ import Icon from './Icon.astro';
 import '../styles/nav.css';
 
 const links = [
-  { href: '/', label: 'The Trail', n: '01' },
-  { href: '/story/', label: 'His Story', n: '02' },
-  { href: '/eulogy/', label: 'Eulogy', n: '03' },
-  { href: '/lens/', label: 'Through the Lens', n: '04' },
-  { href: '/campfire/', label: 'The Campfire', n: '05' },
+  { href: '/', label: 'The trail', note: 'Walk through his life', icon: 'path' },
+  { href: '/story/', label: 'His story', note: 'Every chapter in one place', icon: 'book-open-text' },
+  { href: '/lens/', label: 'His film roll', note: 'Photos of him, and by him', icon: 'film-strip' },
+  { href: '/eulogy/', label: 'Eulogy', note: 'Read the eulogy', icon: 'file-text' },
+  { href: '/campfire/', label: 'The campfire', note: 'Light a candle, leave a memory', icon: 'fire' },
 ];
 ---
-<header class="site-header" transition:persist="site-header">
+<header class="site-header" data-site-header transition:persist="site-header">
   <a href="/" class="site-mark" aria-label="Tedy, home">
     <span class="site-mark-name">Tedy</span>
     <span class="site-mark-years">1999 — 2026</span>
   </a>
+  <a href="/" class="site-back" data-back aria-label="Back to the trail">
+    <Icon name="caret-left" /> The trail
+  </a>
   <button type="button" class="menu-btn" data-menu-open aria-haspopup="dialog">
-    Menu <Icon name="list" />
+    <span>Menu</span> <Icon name="list" />
   </button>
 </header>
 
 <dialog class="menu" data-menu aria-label="Menu" transition:persist="site-menu">
-  <div class="menu-inner">
-    <div class="menu-top">
-      <button type="button" class="menu-close" data-menu-close>
-        Close <Icon name="x" />
-      </button>
-    </div>
-    <nav aria-label="Main">
-      <ol class="menu-list">
-        {links.map((l) => (
-          <li>
-            <a href={l.href} class="menu-link" data-nav-link>
-              <span class="menu-n">{l.n}</span>
-              <span class="menu-label">{l.label}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </nav>
-    <p class="menu-foot">Thadeus Esirom Etyang · 07.07.1999 — 11.11.2026</p>
+  <div class="menu-head">
+    <p class="menu-title">Tedy <span>1999 — 2026</span></p>
+    <button type="button" class="menu-close" data-menu-close aria-label="Close menu">
+      <Icon name="x" />
+    </button>
   </div>
+  <nav aria-label="Main">
+    <ul class="menu-list">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} class="menu-link" data-nav-link>
+            <span class="menu-icon"><Icon name={l.icon} /></span>
+            <span class="menu-text">
+              <span class="menu-label">{l.label}</span>
+              <span class="menu-note">{l.note}</span>
+            </span>
+            <Icon name="caret-right" class="menu-go" />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
 </dialog>
 
 <script>
@@ -49,6 +54,7 @@ const links = [
     const dialog = document.querySelector<HTMLDialogElement>('[data-menu]');
     const open = document.querySelector('[data-menu-open]');
     const close = document.querySelector('[data-menu-close]');
+    const back = document.querySelector('[data-back]');
     if (!dialog || !open || !close || dialog.dataset.bound) return;
     dialog.dataset.bound = '1';
     open.addEventListener('click', () => dialog.showModal());
@@ -56,10 +62,18 @@ const links = [
     dialog.addEventListener('click', (e) => {
       if (e.target === dialog) dialog.close();
     });
+    back?.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('tedy-resume', '1');
+      } catch {
+        return;
+      }
+    });
   }
 
-  function markActive() {
+  function sync() {
     const path = location.pathname;
+    document.querySelector('[data-site-header]')?.classList.toggle('is-home', path === '/');
     document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]').forEach((a) => {
       if (a.getAttribute('href') === path) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
@@ -68,7 +82,7 @@ const links = [
 
   document.addEventListener('astro:page-load', () => {
     setup();
-    markActive();
+    sync();
   });
 
   document.addEventListener('astro:before-swap', () => {
