@@ -259,3 +259,7 @@ html.vf-open { overflow: hidden; }
   max-height: none;
   object-fit: contain;
 }
+
+@media (min-width: 1024px) {
+  .lens { padding-top: 10rem; }
+}
