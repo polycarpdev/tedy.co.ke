@@ -231,3 +231,34 @@ stops.delete('/media/:id', async (req, res) => {
   }
   res.json({ media: await listMedia(stop_id) });
 });
+
+stops.post('/media/:id/stop', async (req, res) => {
+  const id = Number(req.params.id);
+  const target = Number(req.body?.stop_id);
+  const { rows } = await pool.query(
+    `SELECT stop_id, is_cover FROM media WHERE id = $1 AND kind = 'photo'`,
+    [id]
+  );
+  if (!rows[0]) return notFound(res);
+  const from = rows[0].stop_id;
+  const dest = await pool.query('SELECT title FROM stops WHERE id = $1', [target]);
+  if (!dest.rows[0]) return res.status(400).json({ error: 'Choose a stop to move to' });
+  if (target === from) return res.json({ media: await listMedia(from) });
+
+  await pool.query(
+    `UPDATE media SET stop_id = $2,
+       position = (SELECT coalesce(max(position), 0) + 1 FROM media WHERE stop_id = $2),
+       is_cover = NOT EXISTS (SELECT 1 FROM media WHERE stop_id = $2 AND kind = 'photo')
+     WHERE id = $1`,
+    [id, target]
+  );
+  if (rows[0].is_cover) {
+    await pool.query(
+      `UPDATE media SET is_cover = true WHERE id = (
+         SELECT id FROM media WHERE stop_id = $1 AND kind = 'photo' ORDER BY position, id LIMIT 1)`,
+      [from]
+    );
+  }
+  await notify('media', `Photo moved to ${dest.rows[0].title}`, `stops/${target}`);
+  res.json({ media: await listMedia(from) });
+});

@@ -1,6 +1,6 @@
 // src/admin/MediaGrid.tsx
-import { useRef, useState } from 'react';
-import { api, uploadFile, type Media } from './api';
+import { useEffect, useRef, useState } from 'react';
+import { api, uploadFile, type Media, type StopRow } from './api';
 import { Icon } from './Icon';
 
 type Job = { name: string; progress: number; error?: string };
@@ -12,6 +12,11 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [drag, setDrag] = useState(false);
+  const [stops, setStops] = useState<StopRow[]>([]);
+
+  useEffect(() => {
+    api<StopRow[]>('/admin/stops').then(setStops).catch(() => {});
+  }, []);
 
   const patchJob = (i: number, patch: Partial<Job>) =>
     setJobs((js) => js.map((j, k) => (k === i ? { ...j, ...patch } : j)));
@@ -40,6 +45,13 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
       await api(`/admin/stops/${stopId}/media/done`, { method: 'POST', body: { count: done } }).catch(() => {});
     }
     setTimeout(() => setJobs((js) => js.filter((j) => j.error)), 1500);
+  }
+
+  async function moveTo(id: number, target: number) {
+    if (!target) return;
+    const name = stops.find((s) => s.id === target)?.title || 'that stop';
+    if (!confirm(`Move this photo to ${name}?`)) return;
+    await act(`/admin/media/${id}/stop`, 'POST', { stop_id: target });
   }
 
   async function act(path: string, method = 'POST', body?: unknown) {
@@ -142,6 +154,18 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
             >
               <Icon name="camera" size={14} /> Taken by Tedy
             </button>
+            <select
+              className="cms-input cms-move"
+              value=""
+              onChange={(e) => moveTo(m.id, Number(e.target.value))}
+            >
+              <option value="">Move to...</option>
+              {stops
+                .filter((s) => s.id !== stopId)
+                .map((s) => (
+                  <option key={s.id} value={s.id}>{s.title}</option>
+                ))}
+            </select>
           </figure>
         ))}
       </div>

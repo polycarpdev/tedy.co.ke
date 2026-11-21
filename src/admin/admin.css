@@ -387,3 +387,5 @@ textarea.cms-input { resize: vertical; line-height: 1.55; }
 .cms-page { display: grid; gap: 6px; margin: 0; }
 .cms-page img { width: 100%; height: auto; border-radius: 4px; background: #fff; }
 .cms-page figcaption { color: #8b9099; font: 12px "IBM Plex Mono", monospace; }
+
+.cms-move { padding: 6px 8px; font-size: 12px; color: #c9c5bd; cursor: pointer; }
