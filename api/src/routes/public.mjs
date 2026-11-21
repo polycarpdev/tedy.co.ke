@@ -20,11 +20,11 @@ const esc = (s) =>
 
 publicRoutes.get('/content', async (_req, res) => {
   const { rows: stops } = await pool.query(
-    `SELECT id, slug, year, title, line, body, outfit, accessory
+    `SELECT id, slug, year, year_end, year_label, place, title, line, body, outfit, accessory
      FROM stops WHERE published ORDER BY position, id`
   );
   const { rows: media } = await pool.query(
-    `SELECT stop_id, file, width, height, caption, alt, is_cover
+    `SELECT stop_id, file, width, height, caption, alt, is_cover, by_tedy
      FROM media WHERE kind = 'photo' AND stop_id = ANY($1::int[])
      ORDER BY position, id`,
     [stops.map((s) => s.id)]

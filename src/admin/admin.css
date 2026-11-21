@@ -358,3 +358,25 @@ textarea.ad-input { resize: vertical; line-height: 1.55; }
   .ad-h { flex-wrap: wrap; }
   .ad-row-msg { grid-template-columns: minmax(0, 1fr) 72px; }
 }
+
+.ad-grid-title { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; }
+.ad-grid-4 { display: grid; grid-template-columns: 110px 110px minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.ad-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border: 1px solid #262e38;
+  border-radius: 6px;
+  background: none;
+  color: #8b9099;
+  font-size: 12px;
+  cursor: pointer;
+}
+.ad-tag:hover { border-color: #3a4552; color: #e8e5df; }
+.ad-tag.is-on { border-color: #da291c; color: #fff; background: #3a120e; }
+
+@media (max-width: 720px) {
+  .ad-grid-title, .ad-grid-4 { grid-template-columns: 1fr 1fr; }
+}

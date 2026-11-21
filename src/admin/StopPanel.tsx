@@ -4,7 +4,10 @@ import { api, type Accessory, type Media, type Outfit, type StopDetail } from '.
 import { Icon } from './Icon';
 import { MediaGrid } from './MediaGrid';
 
-const FIELDS = ['title', 'slug', 'year', 'line', 'body', 'outfit', 'accessory', 'published'] as const;
+const FIELDS = [
+  'title', 'slug', 'place', 'year', 'year_end', 'year_label',
+  'line', 'body', 'outfit', 'accessory', 'published',
+] as const;
 
 type Props = { id: number; onClose: () => void; onChange: () => void };
 
@@ -87,26 +90,44 @@ export function StopPanel({ id, onClose, onChange }: Props) {
 
         {form ? (
           <div className="ad-drawer-body">
-            <div className="ad-grid-2">
+            <div className="ad-grid-title">
               <label className="ad-field">
                 Title
                 <input className="ad-input" value={form.title} maxLength={80}
                   onChange={(e) => set('title', e.target.value)} />
               </label>
               <label className="ad-field">
-                Year
+                Place <span>optional</span>
+                <input className="ad-input" value={form.place} maxLength={120} placeholder="Amairo, Teso South"
+                  onChange={(e) => set('place', e.target.value)} />
+              </label>
+            </div>
+
+            <div className="ad-grid-4">
+              <label className="ad-field">
+                From
                 <input className="ad-input" type="number" min={1900} max={2100} value={form.year}
                   onChange={(e) => set('year', Number(e.target.value))} />
               </label>
               <label className="ad-field">
-                Link name <span>tedy.co.ke/story/#{form.slug}</span>
+                To <span>optional</span>
+                <input className="ad-input" type="number" min={1900} max={2100} value={form.year_end ?? ''}
+                  onChange={(e) => set('year_end', e.target.value ? Number(e.target.value) : null)} />
+              </label>
+              <label className="ad-field">
+                Label <span>replaces the years</span>
+                <input className="ad-input" value={form.year_label} maxLength={30} placeholder="Always"
+                  onChange={(e) => set('year_label', e.target.value)} />
+              </label>
+              <label className="ad-field">
+                Link name
                 <input className="ad-input" value={form.slug} maxLength={60}
                   onChange={(e) => set('slug', e.target.value)} />
               </label>
             </div>
 
             <label className="ad-field">
-              Short line <span>shown on the trail card</span>
+              Short line <span>shown on the trail</span>
               <textarea className="ad-input" rows={2} maxLength={220} value={form.line}
                 onChange={(e) => set('line', e.target.value)} />
             </label>

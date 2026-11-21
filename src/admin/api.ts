@@ -65,6 +65,9 @@ export type StopRow = {
   slug: string;
   position: number;
   year: number;
+  year_end: number | null;
+  year_label: string;
+  place: string;
   title: string;
   line: string;
   published: boolean;
@@ -84,12 +87,16 @@ export type Media = {
   alt: string;
   position: number;
   is_cover: boolean;
+  by_tedy: boolean;
 };
 export type StopDetail = {
   id: number;
   slug: string;
   position: number;
   year: number;
+  year_end: number | null;
+  year_label: string;
+  place: string;
   title: string;
   line: string;
   body: string;

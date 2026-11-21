@@ -136,6 +136,12 @@ export function MediaGrid({ stopId, media, onChange }: Props) {
                 if (e.target.value !== m.caption) act(`/admin/media/${m.id}`, 'PUT', { caption: e.target.value });
               }}
             />
+            <button
+              className={`ad-tag${m.by_tedy ? " is-on" : ""}`}
+              onClick={() => act(`/admin/media/${m.id}`, "PUT", { by_tedy: !m.by_tedy })}
+            >
+              <Icon name="camera" size={14} /> Taken by Tedy
+            </button>
           </figure>
         ))}
       </div>

@@ -16,6 +16,7 @@ import close from '@phosphor-icons/core/assets/light/x-light.svg?raw';
 import uploadIcon from '@phosphor-icons/core/assets/light/upload-simple-light.svg?raw';
 import image from '@phosphor-icons/core/assets/light/image-light.svg?raw';
 import check from '@phosphor-icons/core/assets/light/check-light.svg?raw';
+import camera from '@phosphor-icons/core/assets/light/camera-light.svg?raw';
 
 const icons = {
   bell,
@@ -35,6 +36,7 @@ const icons = {
   upload: uploadIcon,
   image,
   check,
+  camera,
 };
 
 export type IconName = keyof typeof icons;

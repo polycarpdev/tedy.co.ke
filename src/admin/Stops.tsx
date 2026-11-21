@@ -65,7 +65,7 @@ export function Stops() {
             <div className="ad-thumb">
               {s.cover ? <img src={`/media/${s.cover}/480.webp`} alt="" loading="lazy" /> : <Icon name="image" />}
             </div>
-            <div className="ad-row-year">{s.year}</div>
+            <div className="ad-row-year">{s.year_label || (s.year_end ? `${s.year}–${s.year_end}` : s.year)}</div>
             <div className="ad-row-main">
               <div className="ad-row-title">
                 {s.title}

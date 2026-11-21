@@ -15,12 +15,13 @@ const upload = multer({
 
 const OUTFITS = ['jersey', 'army', 'casual'];
 const ACCESSORIES = ['none', 'camera', 'headphones'];
+const STOP_COLS = 'id, slug, position, year, year_end, year_label, place, title, line, body, outfit, accessory, published';
+const MEDIA_COLS = 'id, stop_id, kind, file, width, height, caption, alt, position, is_cover, by_tedy';
 
 const clean = (v, max) => String(v ?? '').trim().slice(0, max);
-const toYear = (v) => {
-  const y = Number(v);
-  return Number.isInteger(y) && y >= 1900 && y <= 2100 ? y : new Date().getFullYear();
-};
+const validYear = (y) => Number.isInteger(y) && y >= 1900 && y <= 2100;
+const toYear = (v) => (validYear(Number(v)) ? Number(v) : new Date().getFullYear());
+const toYearOrNull = (v) => (v === null || v === undefined || v === '' ? null : validYear(Number(v)) ? Number(v) : null);
 const notFound = (res) => res.status(404).json({ error: 'Not found' });
 const slugify = (s) =>
   s.toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim().replace(/[\s_-]+/g, '-').slice(0, 60) || 'stop';
@@ -38,8 +39,7 @@ async function uniqueSlug(text, exceptId = 0) {
 
 async function listMedia(stopId) {
   const { rows } = await pool.query(
-    `SELECT id, stop_id, kind, file, width, height, caption, alt, position, is_cover
-     FROM media WHERE stop_id = $1 ORDER BY position, id`,
+    `SELECT ${MEDIA_COLS} FROM media WHERE stop_id = $1 AND kind = 'photo' ORDER BY position, id`,
     [stopId]
   );
   return rows;
@@ -63,19 +63,18 @@ function moveIn(ids, id, dir) {
 }
 
 async function getStop(id) {
-  const { rows } = await pool.query(
-    'SELECT id, slug, position, year, title, line, body, outfit, accessory, published FROM stops WHERE id = $1',
-    [id]
-  );
+  const { rows } = await pool.query(`SELECT ${STOP_COLS} FROM stops WHERE id = $1`, [id]);
   if (!rows[0]) return null;
   return { ...rows[0], media: await listMedia(id) };
 }
 
 stops.get('/stops', async (_req, res) => {
   const { rows } = await pool.query(`
-    SELECT s.id, s.slug, s.position, s.year, s.title, s.line, s.published, s.outfit, s.accessory,
-      (SELECT count(*)::int FROM media m WHERE m.stop_id = s.id) AS media_count,
-      (SELECT file FROM media c WHERE c.stop_id = s.id ORDER BY c.is_cover DESC, c.position, c.id LIMIT 1) AS cover
+    SELECT s.id, s.slug, s.position, s.year, s.year_end, s.year_label, s.place, s.title, s.line,
+      s.published, s.outfit, s.accessory,
+      (SELECT count(*)::int FROM media m WHERE m.stop_id = s.id AND m.kind = 'photo') AS media_count,
+      (SELECT file FROM media c WHERE c.stop_id = s.id AND c.kind = 'photo'
+        ORDER BY c.is_cover DESC, c.position, c.id LIMIT 1) AS cover
     FROM stops s ORDER BY s.position, s.id
   `);
   res.json(rows);
@@ -105,16 +104,24 @@ stops.put('/stops/:id', async (req, res) => {
   const b = req.body || {};
   const title = clean(b.title, 80);
   if (!title) return res.status(400).json({ error: 'Title is required' });
+  const year = toYear(b.year);
+  const yearEnd = toYearOrNull(b.year_end);
+  if (yearEnd !== null && yearEnd < year) {
+    return res.status(400).json({ error: 'End year cannot be before the start year' });
+  }
   const slug = await uniqueSlug(clean(b.slug, 60) || title, id);
   const { rowCount } = await pool.query(
-    `UPDATE stops SET slug = $2, title = $3, year = $4, line = $5, body = $6,
-       outfit = $7, accessory = $8, published = $9, updated_at = now()
+    `UPDATE stops SET slug = $2, title = $3, year = $4, year_end = $5, year_label = $6, place = $7,
+       line = $8, body = $9, outfit = $10, accessory = $11, published = $12, updated_at = now()
      WHERE id = $1`,
     [
       id,
       slug,
       title,
-      toYear(b.year),
+      year,
+      yearEnd,
+      clean(b.year_label, 30),
+      clean(b.place, 120),
       clean(b.line, 220),
       clean(b.body, 20000),
       OUTFITS.includes(b.outfit) ? b.outfit : 'casual',
@@ -156,7 +163,7 @@ stops.post('/stops/:id/media', upload.single('file'), async (req, res) => {
     `INSERT INTO media (stop_id, kind, file, width, height, position, is_cover)
      VALUES ($1, 'photo', $2, $3, $4,
        (SELECT coalesce(max(position), 0) + 1 FROM media WHERE stop_id = $1),
-       NOT EXISTS (SELECT 1 FROM media WHERE stop_id = $1))`,
+       NOT EXISTS (SELECT 1 FROM media WHERE stop_id = $1 AND kind = 'photo'))`,
     [stopId, saved.file, saved.width, saved.height]
   );
   res.status(201).json({ media: await listMedia(stopId) });
@@ -172,11 +179,19 @@ stops.post('/stops/:id/media/done', async (req, res) => {
 });
 
 stops.put('/media/:id', async (req, res) => {
-  const caption = clean(req.body?.caption, 300);
-  const { rows } = await pool.query(
-    'UPDATE media SET caption = $2, alt = $2 WHERE id = $1 RETURNING stop_id',
-    [Number(req.params.id), caption]
-  );
+  const b = req.body || {};
+  const sets = [];
+  const vals = [Number(req.params.id)];
+  if (b.caption !== undefined) {
+    vals.push(clean(b.caption, 300));
+    sets.push(`caption = $${vals.length}, alt = $${vals.length}`);
+  }
+  if (b.by_tedy !== undefined) {
+    vals.push(Boolean(b.by_tedy));
+    sets.push(`by_tedy = $${vals.length}`);
+  }
+  if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
+  const { rows } = await pool.query(`UPDATE media SET ${sets.join(', ')} WHERE id = $1 RETURNING stop_id`, vals);
   if (!rows[0]) return notFound(res);
   res.json({ media: await listMedia(rows[0].stop_id) });
 });
@@ -185,7 +200,7 @@ stops.post('/media/:id/cover', async (req, res) => {
   const id = Number(req.params.id);
   const { rows } = await pool.query('SELECT stop_id FROM media WHERE id = $1', [id]);
   if (!rows[0]) return notFound(res);
-  await pool.query('UPDATE media SET is_cover = (id = $1) WHERE stop_id = $2', [id, rows[0].stop_id]);
+  await pool.query(`UPDATE media SET is_cover = (id = $1) WHERE stop_id = $2 AND kind = 'photo'`, [id, rows[0].stop_id]);
   res.json({ media: await listMedia(rows[0].stop_id) });
 });
 
@@ -209,7 +224,8 @@ stops.delete('/media/:id', async (req, res) => {
   await removeMedia(file);
   if (is_cover) {
     await pool.query(
-      'UPDATE media SET is_cover = true WHERE id = (SELECT id FROM media WHERE stop_id = $1 ORDER BY position, id LIMIT 1)',
+      `UPDATE media SET is_cover = true WHERE id = (
+         SELECT id FROM media WHERE stop_id = $1 AND kind = 'photo' ORDER BY position, id LIMIT 1)`,
       [stop_id]
     );
   }
