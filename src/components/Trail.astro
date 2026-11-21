@@ -61,10 +61,6 @@ const data = JSON.stringify(
             <button class="btn" type="button" data-begin>Begin the walk <Icon name="arrow-right" /></button>
             <a class="link" href="/eulogy/">Read the eulogy</a>
           </div>
-          <p class="swipe-hint" aria-hidden="true">
-            <span class="swipe-track"><span class="swipe-dot"></span></span>
-            Swipe or scroll to walk with him
-          </p>
         </div>
       </div>
 
@@ -123,6 +119,24 @@ const data = JSON.stringify(
     <button class="nav-arrow nav-next" type="button" data-step="1" aria-label="Next stop">
       <Icon name="caret-right" />
     </button>
+
+    <div class="camp" aria-hidden="true">
+      <div class="camp-fire">
+        <span class="camp-glow"></span>
+        <span class="camp-wood w1"></span>
+        <span class="camp-wood w2"></span>
+        <span class="camp-flame"></span>
+        <span class="camp-flame f2"></span>
+        <span class="camp-flame f3"></span>
+      </div>
+      <div class="camp-seat"></div>
+    </div>
+
+    <div class="coach" aria-hidden="true">
+      <span class="coach-hand"><Icon name="hand-pointing" size="2.4rem" /></span>
+      <span class="coach-text coach-touch">Swipe to walk with Tedy</span>
+      <span class="coach-text coach-mouse">Scroll to walk with Tedy</span>
+    </div>
 
     <div class="tedy-wrap" data-tedy-wrap>
       <p class="bubble" data-bubble aria-live="polite"></p>

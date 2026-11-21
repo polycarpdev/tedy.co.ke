@@ -58,6 +58,7 @@ export function initTrail(root: HTMLElement): () => void {
   let touchY = 0;
   let moved = false;
   let atState = '';
+  let lastInteract = performance.now();
   const teaseStart = performance.now() + 2200;
   const candleStars: SVGCircleElement[] = [];
 
@@ -69,6 +70,12 @@ export function initTrail(root: HTMLElement): () => void {
     charW = tedyWrap.offsetWidth;
     charL = parseFloat(getComputedStyle(tedyWrap).left) || 0;
     charR = parseFloat(getComputedStyle(document.documentElement).fontSize) * (W >= 1024 ? 4.5 : 2.75);
+    const seatW = charW * 0.4;
+    stage.style.setProperty('--camp-r', `${charR + charW / 2 - seatW / 2}px`);
+    stage.style.setProperty('--seat-w', `${seatW}px`);
+    stage.style.setProperty('--seat-h', `${charH * 0.27}px`);
+    stage.style.setProperty('--fire-h', `${charH * 0.5}px`);
+    stage.style.setProperty('--camp-gap', `${charW * 0.6}px`);
     slides.forEach((s, i) => {
       s.style.left = `${i * W}px`;
       s.style.width = `${W}px`;
@@ -186,9 +193,9 @@ export function initTrail(root: HTMLElement): () => void {
     if (!moved && progress() > 0.004) markMoved();
 
     let tease = 0;
-    if (!moved && !openSlug && current < 1 && now > teaseStart) {
-      const k = (now - teaseStart) % 5200;
-      if (k < 1400) tease = Math.sin((k / 1400) * Math.PI) * W * 0.1;
+    if (atState === 'start' && !openSlug && current < 1 && now - lastInteract > 1800) {
+      const k = (now - lastInteract - 1800) % 3600;
+      if (k < 1200) tease = Math.sin((k / 1200) * Math.PI) * W * 0.14;
     }
     const view = current + tease;
 
@@ -260,6 +267,7 @@ export function initTrail(root: HTMLElement): () => void {
   }
 
   const onClick = (e: MouseEvent) => {
+    lastInteract = performance.now();
     const el = (e.target as HTMLElement).closest<HTMLElement>(
       '[data-open],[data-resume],[data-begin],[data-jump],[data-step]'
     );
@@ -280,6 +288,7 @@ export function initTrail(root: HTMLElement): () => void {
   };
 
   const onKey = (e: KeyboardEvent) => {
+    lastInteract = performance.now();
     if (openSlug || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
     const t = e.target as HTMLElement | null;
     if (t?.closest('input, textarea, [contenteditable]')) return;
@@ -288,6 +297,7 @@ export function initTrail(root: HTMLElement): () => void {
   };
 
   const onTouchStart = (e: TouchEvent) => {
+    lastInteract = performance.now();
     touchX = e.touches[0].clientX;
     touchY = e.touches[0].clientY;
   };
@@ -329,12 +339,17 @@ export function initTrail(root: HTMLElement): () => void {
     }
   };
 
+  const onScroll = () => {
+    lastInteract = performance.now();
+  };
+
   const onTap = () => say(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
 
   layout();
   root.dataset.ready = '';
   const stopCandles = initCandles(root, renderStars);
   window.addEventListener('resize', layout);
+  window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('keydown', onKey);
   window.addEventListener('hashchange', onHash);
   root.addEventListener('click', onClick);
@@ -364,6 +379,7 @@ export function initTrail(root: HTMLElement): () => void {
     stopCandles();
     closeChapter(true);
     window.removeEventListener('resize', layout);
+    window.removeEventListener('scroll', onScroll);
     window.removeEventListener('keydown', onKey);
     window.removeEventListener('hashchange', onHash);
     root.removeEventListener('click', onClick);
