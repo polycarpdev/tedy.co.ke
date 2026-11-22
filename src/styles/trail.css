@@ -884,3 +884,6 @@ html.is-paused { overflow: hidden; }
 .vigil-mouse { display: none; }
 @media (pointer: fine) { .vigil-mouse { display: inline; } .vigil-touch { display: none; } }
 @keyframes vigil-hand { 0%, 100% { translate: 0 0.35rem; opacity: 0.5; } 50% { translate: 0 -0.35rem; opacity: 1; } }
+
+html.is-gated, html.is-gated body { overflow: hidden; overscroll-behavior: none; }
+html.is-gated .trail .stage { touch-action: none; }

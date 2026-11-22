@@ -34,6 +34,8 @@ export function initTrail(root: HTMLElement): () => void {
   const ridges = qa<HTMLElement>('[data-ridge]');
   const dots = qa<HTMLElement>('[data-jump]');
   const chapters = qa<HTMLTemplateElement>('template[data-chapter]');
+  const vigil = root.querySelector<HTMLElement>('.vigil');
+  let gated = false;
 
   const total = n * UNIT;
   let W = 0;
@@ -139,6 +141,7 @@ export function initTrail(root: HTMLElement): () => void {
   }
 
   function step(dir: number) {
+    if (gated) return;
     const pos = W ? current / W - 1 : -1;
     const next = dir > 0 ? Math.floor(pos + 0.001) + 1 : Math.ceil(pos - 0.001) - 1;
     scrollToStop(clamp(next, -1, n - 1));
@@ -283,6 +286,13 @@ export function initTrail(root: HTMLElement): () => void {
       root.dataset.at = at;
     }
 
+    const lock = atState === 'start' && !openSlug && !!vigil && !vigil.classList.contains('is-lit');
+    if (lock !== gated) {
+      gated = lock;
+      document.documentElement.classList.toggle('is-gated', lock);
+      if (lock) window.scrollTo(0, top);
+    }
+
     if (nearest !== shownIndex && stops[nearest]) {
       shownIndex = nearest;
       yearEl.textContent = stops[nearest].year;
@@ -419,6 +429,7 @@ export function initTrail(root: HTMLElement): () => void {
       resumeY = -1;
     }
     cancelAnimationFrame(raf);
+    document.documentElement.classList.remove('is-gated');
     clearTimeout(bubbleTimer);
     clearTimeout(greetTimer);
     stopCandles();

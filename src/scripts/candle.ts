@@ -76,7 +76,8 @@ export function initCandles(root: ParentNode, onCount?: (count: number) => void)
       wrap.classList.add('is-sparking');
       timers.push(window.setTimeout(() => wrap.classList.remove('is-sparking'), 1600));
     } catch {
-      if (alive) render(null, isLit());
+      markLit();
+      if (alive) render(null, true);
     }
   };
 
