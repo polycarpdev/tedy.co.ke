@@ -1,0 +1,105 @@
+---
+// src/components/Body.astro
+import Icon from './Icon.astro';
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+
+const ICONS: Record<string, string> = {
+  land: 'plant',
+  farming: 'plant',
+  water: 'drop',
+  work: 'briefcase',
+  jobs: 'briefcase',
+  voice: 'microphone-stage',
+  studio: 'microphone-stage',
+  music: 'music-notes',
+  faith: 'hands-praying',
+  home: 'house',
+  family: 'users',
+  people: 'users',
+  club: 'soccer-ball',
+  football: 'soccer-ball',
+  coffee: 'coffee',
+  camera: 'camera',
+  hiking: 'mountains',
+};
+
+type Item = { label: string; text: string; icon?: string };
+type Block = { kind: 'p'; text: string } | { kind: 'pillars'; items: Item[] };
+
+const blocks: Block[] = [];
+for (const raw of (text || '').split(/\n\s*\n/)) {
+  const p = raw.trim();
+  if (!p) continue;
+  const m = p.match(/^([A-Za-z][\w' -]{0,18}):\s+([\s\S]+)$/);
+  if (!m) {
+    blocks.push({ kind: 'p', text: p });
+    continue;
+  }
+  const label = m[1].trim();
+  const item = { label, text: m[2].trim(), icon: ICONS[label.toLowerCase()] };
+  const last = blocks[blocks.length - 1];
+  if (last && last.kind === 'pillars') last.items.push(item);
+  else blocks.push({ kind: 'pillars', items: [item] });
+}
+---
+{blocks.map((b) =>
+  b.kind === 'p' ? (
+    <p class="ch-p">{b.text}</p>
+  ) : (
+    <ul class="pillars">
+      {b.items.map((it) => (
+        <li class="pillar">
+          <span class="pillar-icon" aria-hidden="true">
+            {it.icon ? <Icon name={it.icon} /> : <span class="pillar-dot"></span>}
+          </span>
+          <span class="pillar-label">{it.label}</span>
+          <span class="pillar-text">{it.text}</span>
+        </li>
+      ))}
+    </ul>
+  )
+)}
+
+<style>
+  .pillars { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.5rem; max-width: 68ch; }
+  .pillar {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    column-gap: 0.9rem;
+    row-gap: 0.2rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.6rem;
+    background: var(--color-night-2);
+  }
+  .pillar-icon {
+    grid-row: span 2;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+    color: var(--color-ember, #ff8a3d);
+  }
+  .pillar-icon :global(svg) { width: 1.25rem; height: 1.25rem; }
+  .pillar-dot { width: 0.4rem; height: 0.4rem; border-radius: 50%; background: currentColor; }
+  .pillar-label {
+    padding-top: 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-red);
+  }
+  .pillar-text { font-size: 1rem; line-height: 1.55; color: var(--color-ink); }
+  @media (min-width: 1024px) {
+    .pillars { grid-template-columns: 1fr 1fr; max-width: none; }
+    .pillar:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  }
+</style>

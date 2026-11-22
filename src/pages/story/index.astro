@@ -3,6 +3,7 @@
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
 import Photo from '../../components/Photo.astro';
+import Body from '../../components/Body.astro';
 import { getStops, yearText } from '../../data/content';
 
 const stops = await getStops();
@@ -30,7 +31,7 @@ const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter
         <div class="ch-main">
           <h2>{s.title}</h2>
           <p class="ch-lead">{s.line}</p>
-          {paragraphs(s.body).map((p) => <p class="ch-p">{p}</p>)}
+          <Body text={s.body} />
           {s.media.length > 0 && (
             <div class="ch-photos">
               {s.media.map((m) => (
@@ -114,7 +115,7 @@ const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter
     line-height: 1;
   }
   .ch-lead { max-width: 60ch; font-size: 1.2rem; line-height: 1.5; }
-  .ch-p { max-width: 68ch; font-size: 1.0625rem; line-height: 1.75; color: #c9c5bd; }
+  .ch-main :global(.ch-p) { max-width: 68ch; font-size: 1.0625rem; line-height: 1.75; color: #c9c5bd; }
 
   .ch-photos { --row: 8rem; display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
   .ch-photos::after { content: ""; flex-grow: 999999; }

@@ -2,6 +2,7 @@
 // src/components/TrailChapters.astro
 import Icon from './Icon.astro';
 import Photo from './Photo.astro';
+import Body from './Body.astro';
 import { yearText, type Stop } from '../data/content';
 
 interface Props {
@@ -41,7 +42,7 @@ const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter
         </p>
         <h2 class="ch-title">{s.title}</h2>
         <p class="ch-line">{s.line}</p>
-        {paragraphs(s.body).map((p) => <p class="ch-p">{p}</p>)}
+        <Body text={s.body} />
       </div>
     </article>
   </template>
