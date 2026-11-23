@@ -65,6 +65,8 @@ export function initTrail(root: HTMLElement): () => void {
   let moved = false;
   let atState = '';
   let lastInteract = performance.now();
+  let lastScrollAt = 0;
+  let vel = 0;
   const teaseStart = performance.now() + 2200;
   const candleStars: SVGCircleElement[] = [];
 
@@ -215,8 +217,18 @@ export function initTrail(root: HTMLElement): () => void {
   function frame(now: number) {
     const t = target(progress());
     const prev = current;
-    current += (t.x - current) * 0.12;
-    if (Math.abs(t.x - current) < 0.5) current = t.x;
+    if (now - lastScrollAt < 90) {
+      const nx = current + (t.x - current) * 0.6;
+      vel = nx - current;
+      current = nx;
+    } else {
+      vel = (vel + (t.x - current) * 0.16) * 0.74;
+      current += vel;
+    }
+    if (Math.abs(t.x - current) < 0.5 && Math.abs(vel) < 0.5) {
+      current = t.x;
+      vel = 0;
+    }
     const dx = current - prev;
     const pos = W ? current / W - 1 : -1;
     const f = clamp(pos / Math.max(n - 1, 1), 0, 1);
@@ -381,6 +393,7 @@ export function initTrail(root: HTMLElement): () => void {
 
   const onScroll = () => {
     lastInteract = performance.now();
+    lastScrollAt = lastInteract;
   };
 
   const onTap = () => say(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
