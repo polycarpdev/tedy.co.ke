@@ -5,8 +5,10 @@ set -Eeuo pipefail
 REPO_DIR="$HOME/tedy-deploy"
 DOCROOT="$HOME/tedy.co.ke"
 APP_DIR="$HOME/tedy-api"
+LOG="$HOME/tedy-deploy.log"
 
 main() {
+  exec > >(tee -a "$LOG") 2>&1
   exec 9>"$HOME/.tedy-deploy.lock"
   flock 9
   trap 'finish failed' ERR
@@ -23,13 +25,17 @@ main() {
   fi
 
   sync_dir "$REPO_DIR/site" "$DOCROOT" .well-known cgi-bin api media
+  local api=0
   if [ -d "$REPO_DIR/server" ]; then
     sync_dir "$REPO_DIR/server" "$APP_DIR" node_modules .env tmp public .htaccess .deps.sha
-    deploy_api
+    deploy_api && api=1
   fi
 
   finish live
-  echo "Deployed: $(git -C "$REPO_DIR" log -1 --format='%s')"
+  echo "Deployed: $(git -C "$REPO_DIR" log -1 --format='%s') at $(date -Is)"
+  trim_log
+  [ "$api" = 1 ] && restart_api
+  return 0
 }
 
 find_venv() {
@@ -56,7 +62,7 @@ deploy_api() {
   venv=$(find_venv)
   if [ -z "$venv" ]; then
     echo "Node app environment not found. Skipping API."
-    return 0
+    return 1
   fi
   set +u
   source "$venv"
@@ -70,13 +76,21 @@ deploy_api() {
   if [ -f .env ]; then
     node src/migrate.mjs
   fi
-  mkdir -p tmp
-  touch tmp/restart.txt
-  pkill -u "$(id -un)" -f "lsnode:$HOME/tedy-api/" || true
   set +u
   deactivate 2>/dev/null || true
   set -u
-  echo "API restarted"
+  return 0
+}
+
+restart_api() {
+  mkdir -p "$APP_DIR/tmp"
+  touch "$APP_DIR/tmp/restart.txt"
+  echo "API restarting"
+  pkill -u "$(id -un)" -f "lsnode:$HOME/tedy-api/" || true
+}
+
+trim_log() {
+  tail -n 500 "$LOG" > "$LOG.tmp" 2>/dev/null && mv "$LOG.tmp" "$LOG" || true
 }
 
 finish() {
