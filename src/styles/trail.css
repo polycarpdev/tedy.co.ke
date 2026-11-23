@@ -887,3 +887,5 @@ html.is-paused { overflow: hidden; }
 
 html.is-gated, html.is-gated body { overflow: hidden; overscroll-behavior: none; }
 html.is-gated .trail .stage { touch-action: none; }
+
+.trail .stage { touch-action: none; }

@@ -66,6 +66,8 @@ export function initTrail(root: HTMLElement): () => void {
   let atState = '';
   let lastInteract = performance.now();
   let lastScrollAt = 0;
+  let lastWheel = 0;
+  let wheelLock = 0;
   let vel = 0;
   const teaseStart = performance.now() + 2200;
   const candleStars: SVGCircleElement[] = [];
@@ -341,11 +343,13 @@ export function initTrail(root: HTMLElement): () => void {
 
   const onKey = (e: KeyboardEvent) => {
     lastInteract = performance.now();
-    if (openSlug || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
+    const fwd = ['ArrowRight', 'ArrowDown', 'PageDown'];
+    const back = ['ArrowLeft', 'ArrowUp', 'PageUp'];
+    if (openSlug || (!fwd.includes(e.key) && !back.includes(e.key))) return;
     const t = e.target as HTMLElement | null;
     if (t?.closest('input, textarea, [contenteditable]')) return;
     e.preventDefault();
-    step(e.key === 'ArrowRight' ? 1 : -1);
+    step(fwd.includes(e.key) ? 1 : -1);
   };
 
   const onTouchStart = (e: TouchEvent) => {
@@ -359,6 +363,10 @@ export function initTrail(root: HTMLElement): () => void {
     const t = e.changedTouches[0];
     const dx = t.clientX - touchX;
     const dy = t.clientY - touchY;
+    if (Math.abs(dy) >= 40 && Math.abs(dy) > Math.abs(dx)) {
+      step(dy < 0 ? 1 : -1);
+      return;
+    }
     if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
     step(dx < 0 ? 1 : -1);
   };
@@ -396,6 +404,21 @@ export function initTrail(root: HTMLElement): () => void {
     lastScrollAt = lastInteract;
   };
 
+  const onWheel = (e: WheelEvent) => {
+    if (openSlug || e.ctrlKey) return;
+    const y = window.scrollY;
+    if (y < top - 2 || y > top + scrollLen + 2) return;
+    e.preventDefault();
+    const now = performance.now();
+    const quiet = now - lastWheel > 220;
+    lastWheel = now;
+    lastInteract = now;
+    if (Math.abs(e.deltaY) < 2) return;
+    if (!quiet && now < wheelLock) return;
+    wheelLock = now + 1400;
+    step(e.deltaY > 0 ? 1 : -1);
+  };
+
   const onTap = () => say(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
 
   layout();
@@ -404,6 +427,7 @@ export function initTrail(root: HTMLElement): () => void {
   const stopCandles = initCandles(root, renderStars);
   window.addEventListener('resize', layout);
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('keydown', onKey);
   window.addEventListener('hashchange', onHash);
   root.addEventListener('click', onClick);
@@ -449,6 +473,7 @@ export function initTrail(root: HTMLElement): () => void {
     closeChapter(true);
     window.removeEventListener('resize', layout);
     window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('wheel', onWheel);
     window.removeEventListener('keydown', onKey);
     window.removeEventListener('hashchange', onHash);
     root.removeEventListener('click', onClick);
