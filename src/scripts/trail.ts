@@ -135,14 +135,35 @@ export function initTrail(root: HTMLElement): () => void {
     root.dataset.moved = '';
   }
 
+  let glideRaf = 0;
+  function glide(y: number) {
+    cancelAnimationFrame(glideRaf);
+    const from = window.scrollY;
+    const d = y - from;
+    if (Math.abs(d) < 1) return;
+    const unit = scrollLen > 0 ? (scrollLen * UNIT) / total : 1;
+    const ms = clamp(1000 + (Math.abs(d) / unit - 1) * 250, 1000, 2200);
+    const t0 = performance.now();
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const tick = (now: number) => {
+      const k = Math.min(1, (now - t0) / ms);
+      window.scrollTo({ top: from + d * ease(k), behavior: 'instant' as ScrollBehavior });
+      if (k < 1) glideRaf = requestAnimationFrame(tick);
+    };
+    glideRaf = requestAnimationFrame(tick);
+  }
+
   function scrollToStop(i: number, behavior: ScrollBehavior = 'smooth') {
     markMoved();
     if (i < 0) {
-      window.scrollTo({ top, behavior });
+      if (behavior === 'smooth') glide(top);
+      else window.scrollTo({ top, behavior });
       return;
     }
     const u = i * UNIT + WALK + DWELL * 0.3;
-    window.scrollTo({ top: top + (u / total) * scrollLen, behavior });
+    const y = top + (u / total) * scrollLen;
+    if (behavior === 'smooth') glide(y);
+    else window.scrollTo({ top: y, behavior });
   }
 
   function step(dir: number) {
@@ -261,7 +282,7 @@ export function initTrail(root: HTMLElement): () => void {
     const follow = Number.isNaN(lastLinked) ? 0 : Math.abs(linked - lastLinked) * 1.25 + 1;
     lastLinked = linked;
     const desired = auto ? seatX : linked;
-    const limit = Math.max(charH * 1.3 * dt, auto ? 0 : follow);
+    const limit = charH * 0.85 * dt;
     const stepX = clamp(desired - tx, -limit, limit);
     tx += stepX;
     tedyWrap.style.transform = `translate3d(${tx.toFixed(1)}px, 0, 0)`;
@@ -269,7 +290,7 @@ export function initTrail(root: HTMLElement): () => void {
 
     if (Math.abs(stepX) > 0.15) {
       lastMove = now;
-      const dur = clamp((charH * 0.55) / Math.max(speed, 1), 0.3, 1.1);
+      const dur = clamp((charH * 0.9) / Math.max(speed, 1), 0.5, 1.2);
       if (!stepDur || Math.abs(dur - stepDur) / stepDur > 0.15) {
         stepDur = dur;
         tedy.style.setProperty('--step', `${dur}s`);
@@ -468,6 +489,7 @@ export function initTrail(root: HTMLElement): () => void {
       resumeY = -1;
     }
     cancelAnimationFrame(raf);
+    cancelAnimationFrame(glideRaf);
     document.documentElement.classList.remove('is-gated');
     clearTimeout(bubbleTimer);
     clearTimeout(greetTimer);
