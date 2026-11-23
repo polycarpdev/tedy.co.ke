@@ -144,7 +144,7 @@ export function initTrail(root: HTMLElement): () => void {
     const unit = scrollLen > 0 ? (scrollLen * UNIT) / total : 1;
     const ms = clamp(1000 + (Math.abs(d) / unit - 1) * 250, 1000, 2200);
     const t0 = performance.now();
-    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
     const tick = (now: number) => {
       const k = Math.min(1, (now - t0) / ms);
       window.scrollTo({ top: from + d * ease(k), behavior: 'instant' as ScrollBehavior });

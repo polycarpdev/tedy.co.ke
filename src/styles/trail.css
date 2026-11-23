@@ -889,3 +889,16 @@ html.is-gated, html.is-gated body { overflow: hidden; overscroll-behavior: none;
 html.is-gated .trail .stage { touch-action: none; }
 
 .trail .stage { touch-action: none; }
+
+.trail .stop-text {
+  padding: 1.1rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.9rem;
+  background: rgba(10, 12, 16, 0.42);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #f4efe8;
+}
+.trail .stop-text :is(.stop-title, .stop-line, .stop-meta span, .link) { color: #f4efe8 !important; }
+.trail .stop-text .stop-line { opacity: 0.85; }
+@media (min-width: 1024px) { .trail .stop-text { padding: 1.75rem 2rem; } }
