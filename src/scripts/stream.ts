@@ -44,9 +44,16 @@ export function initStream(el: HTMLElement): () => void {
 
   function show() {
     if (!items.length) return;
-    const m = fresh.shift() || items[i++ % items.length];
+    const shown = new Set([...list.children].map((c) => Number((c as HTMLElement).dataset.id)));
+    let m = fresh.shift();
+    for (let k = 0; !m && k < items.length; k++) {
+      const c = items[i++ % items.length];
+      if (!shown.has(c.id)) m = c;
+    }
+    if (!m) return;
     const li = document.createElement('li');
     li.className = 'st-item';
+    li.dataset.id = String(m.id);
     const inner = document.createElement('div');
     inner.className = 'st-inner';
     const who = document.createElement('p');
