@@ -70,6 +70,7 @@ export function initStream(el: HTMLElement): () => void {
     li.append(inner);
     list.append(li);
     while (list.children.length > MAX) list.firstElementChild?.remove();
+    window.setTimeout(() => list.classList.toggle('is-full', list.scrollHeight > list.clientHeight + 1), 800);
   }
 
   const prime = () => {

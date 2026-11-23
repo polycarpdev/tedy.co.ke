@@ -150,3 +150,21 @@
   .cf h1 { font-size: 7rem; }
   .cf-grid { grid-template-columns: 26rem minmax(0, 1fr); gap: 2.5rem; }
 }
+
+.cf .cf-head h1 { font-size: clamp(2.5rem, 9vw, 4.5rem); }
+.cf .cf-grid { display: grid; gap: 1rem; align-items: start; }
+.cf .cf-wall {
+  order: -1;
+  --st-h: min(58svh, 36rem);
+  padding: 1.25rem 1.25rem 0.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: 0.8rem;
+  background: var(--color-night-2);
+}
+.cf .cf-wall .st-inner:last-child { border-bottom: 0; }
+.cf .cf-side { display: grid; gap: 1rem; }
+@media (min-width: 1024px) {
+  .cf .cf-grid { grid-template-columns: minmax(0, 1.5fr) minmax(22rem, 1fr); gap: 1.5rem; }
+  .cf .cf-wall { --st-h: min(66svh, 44rem); padding: 1.75rem 2rem 0.75rem; }
+  .cf .cf-side { position: sticky; top: 6rem; }
+}
