@@ -1,44 +1,56 @@
 ---
 // src/pages/campfire/index.astro
 import Base from '../../layouts/Base.astro';
-import Candle from '../../components/campfire/Candle';
 import MessageForm from '../../components/campfire/MessageForm';
 import '../../styles/campfire.css';
 ---
 <Base title="The Campfire" description="Sit for a while. Light a candle for Tedy. Leave a memory.">
   <div class="cf">
-    <header class="cf-head">
-      <h1>The Campfire</h1>
-      <p class="cf-intro">Sit for a while. Light a candle. Leave a memory.</p>
+    <header class="cf-top">
+      <div class="cf-head">
+        <h1>The Campfire</h1>
+        <p class="cf-intro">Sit for a while. Light a candle. Leave a memory.</p>
+      </div>
+      <button class="cf-candle" type="button" data-candle data-candle-btn data-label="Light a candle">
+        <span class="cf-candle-art" aria-hidden="true"><span class="cf-flame"></span><span class="cf-wax"></span></span>
+        <span class="cf-candle-text">
+          <b><span data-candle-count>–</span> candles lit</b>
+          <span data-candle-label>Light a candle</span>
+        </span>
+      </button>
     </header>
+
     <div class="cf-grid">
-      <aside class="cf-side">
-        <Candle client:load />
-        <MessageForm client:visible />
-      </aside>
       <section class="cf-wall stream" data-stream>
         <div class="cf-wall-h"><h3>Memories</h3><span data-stream-count>–</span></div>
         <ul class="st-list" data-stream-list></ul>
         <p class="st-empty">Be the first to leave a memory.</p>
       </section>
+      <aside class="cf-side">
+        <MessageForm client:visible />
+      </aside>
     </div>
   </div>
 </Base>
 
 <script>
   import { initStream } from '../../scripts/stream';
+  import { initCandles } from '../../scripts/candle';
 
-  let stop: (() => void) | null = null;
+  let stops: Array<() => void> = [];
+  const clear = () => {
+    stops.forEach((f) => f());
+    stops = [];
+  };
 
   document.addEventListener('astro:page-load', () => {
-    stop?.();
-    stop = null;
-    const el = document.querySelector<HTMLElement>('[data-stream]');
-    if (el && !el.closest('[data-trail]')) stop = initStream(el);
+    clear();
+    const cf = document.querySelector<HTMLElement>('.cf');
+    if (!cf) return;
+    stops.push(initCandles(cf));
+    const el = cf.querySelector<HTMLElement>('[data-stream]');
+    if (el) stops.push(initStream(el));
   });
 
-  document.addEventListener('astro:before-swap', () => {
-    stop?.();
-    stop = null;
-  });
+  document.addEventListener('astro:before-swap', clear);
 </script>
