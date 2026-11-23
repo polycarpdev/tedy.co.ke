@@ -3,7 +3,6 @@
 import Base from '../../layouts/Base.astro';
 import Candle from '../../components/campfire/Candle';
 import MessageForm from '../../components/campfire/MessageForm';
-import Wall from '../../components/campfire/Wall';
 import '../../styles/campfire.css';
 ---
 <Base title="The Campfire" description="Sit for a while. Light a candle for Tedy. Leave a memory.">
@@ -18,7 +17,29 @@ import '../../styles/campfire.css';
         <Candle client:load />
         <MessageForm client:visible />
       </aside>
-      <Wall client:load />
+      <section class="cf-wall stream" data-stream>
+        <div class="cf-wall-h"><h3>Memories</h3><span data-stream-count>–</span></div>
+        <ul class="st-list" data-stream-list></ul>
+        <p class="st-empty">Be the first to leave a memory.</p>
+      </section>
     </div>
   </div>
 </Base>
+
+<script>
+  import { initStream } from '../../scripts/stream';
+
+  let stop: (() => void) | null = null;
+
+  document.addEventListener('astro:page-load', () => {
+    stop?.();
+    stop = null;
+    const el = document.querySelector<HTMLElement>('[data-stream]');
+    if (el && !el.closest('[data-trail]')) stop = initStream(el);
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    stop?.();
+    stop = null;
+  });
+</script>

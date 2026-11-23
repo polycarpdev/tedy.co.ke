@@ -1,6 +1,7 @@
 // src/scripts/trail.ts
 import { paintSky, resetSky } from './sky';
 import { initCandles } from './candle';
+import { initStream } from './stream';
 
 type Stop = { slug: string; year: string; outfit: string; accessory: string };
 
@@ -425,6 +426,7 @@ export function initTrail(root: HTMLElement): () => void {
   document.fonts?.ready.then(() => layout());
   root.dataset.ready = '';
   const stopCandles = initCandles(root, renderStars);
+  const stopStreams = qa<HTMLElement>('[data-stream]').map(initStream);
   window.addEventListener('resize', layout);
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('wheel', onWheel, { passive: false });
@@ -470,6 +472,7 @@ export function initTrail(root: HTMLElement): () => void {
     clearTimeout(bubbleTimer);
     clearTimeout(greetTimer);
     stopCandles();
+    stopStreams.forEach((f) => f());
     closeChapter(true);
     window.removeEventListener('resize', layout);
     window.removeEventListener('scroll', onScroll);

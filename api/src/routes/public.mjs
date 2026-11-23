@@ -53,6 +53,18 @@ publicRoutes.get('/condolences', async (req, res) => {
   res.json({ items: list.rows.slice(0, 20), more: list.rows.length > 20, total: total.rows[0].n });
 });
 
+publicRoutes.get('/stream', async (_req, res) => {
+  const [list, total] = await Promise.all([
+    pool.query(
+      `SELECT id, name, relation, message FROM condolences
+       WHERE status = 'approved' ORDER BY id DESC LIMIT 60`
+    ),
+    pool.query(`SELECT count(*)::int AS n FROM condolences WHERE status = 'approved'`),
+  ]);
+  res.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+  res.json({ items: list.rows.reverse(), total: total.rows[0].n });
+});
+
 publicRoutes.post('/condolences', limit(5, HOUR), async (req, res) => {
   const b = req.body || {};
   if (b.website) return res.status(201).json({ ok: true });
