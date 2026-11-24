@@ -1,0 +1,19 @@
+/* src/styles/journey.css */
+.jy { max-width: 60rem; margin-inline: auto; padding: 6.5rem 1.25rem 4rem; }
+.jy-head { display: grid; gap: 0.6rem; margin-bottom: 2.5rem; }
+.jy-eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); }
+.jy h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.4rem, 9vw, 4.5rem); letter-spacing: -0.04em; line-height: 0.95; }
+.jy-status { font-family: var(--font-mono); font-size: 1.15rem; letter-spacing: 0.06em; color: var(--color-ember, #ff8a3d); font-variant-numeric: tabular-nums; }
+.jy-meta { color: var(--color-muted); }
+.jy-line { --car: 2.8rem; height: 2.2rem; margin: 0 0.4rem 2rem; }
+.jy-stops { list-style: none; margin: 0; padding: 0; display: grid; }
+.jy-stops li { display: grid; grid-template-columns: 1rem 1fr auto; align-items: center; gap: 0.9rem; padding: 0.85rem 0; border-top: 1px solid var(--color-line); }
+.jy-stops li:last-child { border-bottom: 1px solid var(--color-line); }
+.jy-dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; border: 1px solid rgba(236, 232, 225, 0.5); }
+.jy-stops li.is-done .jy-dot { background: var(--color-ember, #ff8a3d); border-color: var(--color-ember, #ff8a3d); }
+.jy-stops li.is-next .jy-dot { border-color: var(--color-ember, #ff8a3d); animation: jy-pulse 1.6s ease-in-out infinite; }
+.jy-stops b { font-weight: 500; }
+.jy-when { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.jy-stops li.is-next .jy-when { color: var(--color-ember, #ff8a3d); }
+@keyframes jy-pulse { 50% { box-shadow: 0 0 0 0.35rem rgba(255, 138, 61, 0.15); } }
+@media (min-width: 1024px) { .jy { padding: 9rem 2.5rem 5rem; } }

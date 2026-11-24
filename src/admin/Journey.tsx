@@ -12,6 +12,7 @@ type JourneyRow = {
   stopped: boolean;
   stopped_at: string | null;
   note: string;
+  rehearsal?: boolean;
 };
 type State = { journey: JourneyRow | null; points: Point[] };
 
@@ -77,6 +78,11 @@ export function Journey() {
       <div className="cms-h">
         <h2>Journey</h2>
         <div className="cms-inline">
+          {j.rehearsal ? (
+            <button className="cms-btn cms-btn-primary" disabled={busy} onClick={() => act('/restore')}>Restore real plan</button>
+          ) : (
+            <button className="cms-btn" disabled={busy} onClick={() => confirm('Squeeze the trip into 15 minutes, starting in 1 minute?') && act('/rehearse', { minutes: 15 })}>Rehearse 15 min</button>
+          )}
           <button className="cms-btn" onClick={() => setEdit(!edit)}>{edit ? 'Done editing' : 'Edit route'}</button>
         </div>
       </div>

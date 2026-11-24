@@ -9,7 +9,7 @@ export async function journeyState() {
   const [j, p] = await Promise.all([
     pool.query(
       `SELECT title, depart_at, arrive_at, show_from, show_until, stopped, stopped_at,
-              paused_seconds, note, updated_at FROM journey WHERE id = 1`
+              paused_seconds, note, updated_at, (plan_backup IS NOT NULL) AS rehearsal FROM journey WHERE id = 1`
     ),
     pool.query('SELECT id, position, name, km, planned_at, passed_at FROM journey_points ORDER BY position, id'),
   ]);
@@ -119,6 +119,48 @@ journey.post('/journey/reset', async (_req, res) => {
   await pool.query('UPDATE journey_points SET passed_at = NULL');
   await pool.query(
     `UPDATE journey SET stopped = false, stopped_at = NULL, paused_seconds = 0, note = '', updated_at = now() WHERE id = 1`
+  );
+  send(res);
+});
+
+journey.post('/journey/rehearse', async (req, res) => {
+  const minutes = Math.min(Math.max(Number(req.body?.minutes) || 15, 5), 120);
+  const { rows: jr } = await pool.query('SELECT depart_at, arrive_at, plan_backup FROM journey WHERE id = 1');
+  const { rows: pts } = await pool.query('SELECT id, km, planned_at FROM journey_points ORDER BY position, id');
+  if (!jr[0] || pts.length < 2) return res.status(400).json({ error: 'Set up the route first.' });
+  const backup = jr[0].plan_backup || {
+    depart_at: jr[0].depart_at,
+    arrive_at: jr[0].arrive_at,
+    points: pts.map((p) => ({ id: p.id, planned_at: p.planned_at })),
+  };
+  const start = Date.now() + 60000;
+  const dur = minutes * 60000;
+  const max = Number(pts[pts.length - 1].km) || 1;
+  for (const p of pts) {
+    await pool.query('UPDATE journey_points SET planned_at = $2, passed_at = NULL WHERE id = $1', [
+      p.id,
+      new Date(start + (Number(p.km) / max) * dur),
+    ]);
+  }
+  await pool.query(
+    `UPDATE journey SET depart_at = $1, arrive_at = $2, plan_backup = $3, stopped = false, stopped_at = NULL,
+       paused_seconds = 0, note = '', updated_at = now() WHERE id = 1`,
+    [new Date(start), new Date(start + dur), JSON.stringify(backup)]
+  );
+  send(res);
+});
+
+journey.post('/journey/restore', async (_req, res) => {
+  const { rows } = await pool.query('SELECT plan_backup FROM journey WHERE id = 1');
+  const b = rows[0]?.plan_backup;
+  if (!b) return res.status(409).json({ error: 'There is no rehearsal to undo.' });
+  for (const p of b.points) {
+    await pool.query('UPDATE journey_points SET planned_at = $2, passed_at = NULL WHERE id = $1', [p.id, p.planned_at]);
+  }
+  await pool.query(
+    `UPDATE journey SET depart_at = $1, arrive_at = $2, plan_backup = NULL, stopped = false, stopped_at = NULL,
+       paused_seconds = 0, note = '', updated_at = now() WHERE id = 1`,
+    [b.depart_at, b.arrive_at]
   );
   send(res);
 });

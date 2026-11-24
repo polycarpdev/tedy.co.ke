@@ -1,0 +1,35 @@
+---
+// src/pages/journey/index.astro
+import Base from '../../layouts/Base.astro';
+import '../../styles/journey.css';
+---
+<Base title="Bringing Tedy home" description="Follow Tedy's journey home to Amairo, Teso South.">
+  <div class="jy" data-journey>
+    <header class="jy-head">
+      <p class="jy-eyebrow" data-jy-date></p>
+      <h1>Bringing Tedy home</h1>
+      <p class="jy-status" data-jy-status>Loading</p>
+      <p class="jy-meta" data-jy-meta></p>
+    </header>
+    <div class="jy-line rt-line" data-jy-line></div>
+    <ol class="jy-stops" data-jy-stops></ol>
+  </div>
+</Base>
+
+<script>
+  import { initJourneyPage } from '../../scripts/journey-page';
+
+  let stop: (() => void) | null = null;
+
+  document.addEventListener('astro:page-load', () => {
+    stop?.();
+    stop = null;
+    const el = document.querySelector<HTMLElement>('[data-journey]');
+    if (el) stop = initJourneyPage(el);
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    stop?.();
+    stop = null;
+  });
+</script>

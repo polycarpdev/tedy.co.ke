@@ -47,12 +47,12 @@ const data = JSON.stringify(
     <div class="world" data-world>
       <div class="slide slide-hero" data-slide>
         <div class="hero hero-gate">
-          <div class="homeward" data-homeward hidden>
+          <a class="homeward" href="/journey/" data-homeward hidden>
             <p class="hw-k" data-hw-kicker></p>
-            <div class="hw-line" data-hw-line></div>
+            <div class="hw-line rt-line" data-hw-line></div>
             <p class="hw-ends"><span data-hw-from></span><span data-hw-to></span></p>
             <p class="hw-time" data-hw-time></p>
-          </div>
+          </a>
           <p class="hero-eyebrow">Thadeus Esirom Etyang</p>
           <h1 class="hero-name" aria-label="Tedy">
             {'Tedy'.split('').map((c, i) => <span aria-hidden="true" style={`--i:${i}`}>{c}</span>)}
