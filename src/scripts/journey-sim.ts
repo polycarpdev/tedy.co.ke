@@ -62,7 +62,7 @@ export function simulate(d: JourneyData, now = Date.now()): Sim {
   return { state: 'live', pct: (km / max) * 100, eta, nextAt, next: i + 1, held: j.stopped };
 }
 
-const CAR = `<span class="rt-veh"><img class="rt-body" src="/hearse.webp" alt="" width="560" height="208" decoding="async"><img class="rt-wheel rt-w1" src="/hearse-wheel.webp" alt="" width="128" height="128" decoding="async"><img class="rt-wheel rt-w2" src="/hearse-wheel.webp" alt="" width="128" height="128" decoding="async"></span>`;
+const CAR = `<span class="rt-veh"><img class="rt-body" src="/hearse.webp?v=2" alt="" width="560" height="208" decoding="async"><img class="rt-wheel rt-w1" src="/hearse-wheel.webp?v=2" alt="" width="128" height="128" decoding="async"><img class="rt-wheel rt-w2" src="/hearse-wheel.webp?v=2" alt="" width="128" height="128" decoding="async"></span>`;
 
 export function buildRoute(line: HTMLElement, pts: Point[]) {
   const key = pts.map((p) => `${p.name}:${p.km}`).join('|');

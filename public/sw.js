@@ -1,5 +1,5 @@
 // public/sw.js
-const VERSION = 'tedy-v3';
+const VERSION = 'tedy-v4';
 const PAGES = ['/', '/story/', '/eulogy/', '/lens/', '/campfire/', '/404.html'];
 
 self.addEventListener('install', (event) => {
