@@ -183,7 +183,7 @@ publicRoutes.post('/candles', limit(10, HOUR), async (req, res) => {
 });
 
 publicRoutes.get('/journey', async (_req, res) => {
-  res.set('Cache-Control', 'public, max-age=15, s-maxage=20');
+  res.set('Cache-Control', 'public, max-age=0, s-maxage=10');
   res.json(await journeyState());
 });
 

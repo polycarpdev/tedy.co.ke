@@ -77,7 +77,7 @@ export function initJourneyPage(el: HTMLElement): () => void {
 
   load();
   const tick = window.setInterval(render, 1000);
-  const poll = window.setInterval(() => !document.hidden && load(), 20000);
+  const poll = window.setInterval(() => !document.hidden && load(), 15000);
   return () => {
     alive = false;
     clearInterval(tick);
