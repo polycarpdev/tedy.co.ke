@@ -43,21 +43,23 @@ export function simulate(d: JourneyData, now = Date.now()): Sim {
     const at = ms(pts[n - 1].passed_at!);
     return { state: 'home', pct: 100, eta: at, nextAt: at, next: -1, held: false };
   }
-  if (last < 0) {
-    return { state: now >= ms(j.depart_at) ? 'due' : 'soon', pct: 0, eta: ms(j.arrive_at), nextAt: ms(j.depart_at), next: 0, held: false };
+  if (last < 0 && now < ms(j.depart_at)) {
+    return { state: 'soon', pct: 0, eta: ms(j.arrive_at), nextAt: ms(j.depart_at), next: 0, held: false };
   }
-  const a = pts[last];
-  const b = pts[last + 1];
+  const i = Math.max(last, 0);
+  const a = pts[i];
+  const b = pts[i + 1];
+  const aAt = last < 0 ? ms(j.depart_at) : ms(a.passed_at!);
+  const startAt = last < 0 ? ms(j.depart_at) : ms(pts[0].passed_at!);
   const plannedSoFar = ms(a.planned_at) - ms(pts[0].planned_at);
-  const actualSoFar = ms(a.passed_at!) - ms(pts[0].passed_at!);
-  const pace = plannedSoFar > 60000 ? clamp(actualSoFar / plannedSoFar, 0.6, 2) : 1;
+  const pace = plannedSoFar > 60000 ? clamp((aAt - startAt) / plannedSoFar, 0.6, 2) : 1;
   const leg = Math.max(60000, (ms(b.planned_at) - ms(a.planned_at)) * pace);
   const held = j.paused_seconds * 1000 + (j.stopped && j.stopped_at ? now - ms(j.stopped_at) : 0);
-  const frac = clamp((now - ms(a.passed_at!) - held) / leg, 0, 0.97);
+  const frac = clamp((now - aAt - held) / leg, 0, 0.97);
   const km = a.km + (b.km - a.km) * frac;
-  const nextAt = Math.max(ms(a.passed_at!) + held + leg, now);
+  const nextAt = Math.max(aAt + held + leg, now);
   const eta = nextAt + (ms(pts[n - 1].planned_at) - ms(b.planned_at)) * pace;
-  return { state: 'live', pct: (km / max) * 100, eta, nextAt, next: last + 1, held: j.stopped };
+  return { state: 'live', pct: (km / max) * 100, eta, nextAt, next: i + 1, held: j.stopped };
 }
 
 const CAR = `<svg viewBox="0 0 44 18" aria-hidden="true"><path d="M2 12.6V10c0-1 .6-1.6 1.6-1.8l5.2-1C10.4 4.6 12.6 3 15.4 3h10.4c2.3 0 4.2 1 5.6 2.8l2.4 2.9 5.6 1c1.3.3 2.1 1.1 2.1 2.3v.6c0 .8-.6 1.4-1.4 1.4H3.4c-.8 0-1.4-.6-1.4-1.4Z" fill="currentColor"/><path d="M13 7.2c.9-1.7 2.2-2.5 3.6-2.5H21v2.5Zm9.5 0V4.7h3.2c1.6 0 2.9.8 3.9 2.5Z" fill="#07090c" opacity=".55"/><circle cx="10.5" cy="14" r="3" fill="#07090c" stroke="currentColor" stroke-width="1.6"/><circle cx="33" cy="14" r="3" fill="#07090c" stroke="currentColor" stroke-width="1.6"/></svg>`;
