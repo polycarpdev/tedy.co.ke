@@ -6,6 +6,7 @@ REPO_DIR="$HOME/tedy-deploy"
 DOCROOT="$HOME/tedy.co.ke"
 APP_DIR="$HOME/tedy-api"
 LOG="$HOME/tedy-deploy.log"
+CHANGED=0
 
 main() {
   exec 9>"$HOME/.tedy-deploy.lock"
@@ -26,13 +27,17 @@ main() {
   sync_dir "$REPO_DIR/site" "$DOCROOT" .well-known cgi-bin api media
   local api=0
   if [ -d "$REPO_DIR/server" ]; then
-    sync_dir "$REPO_DIR/server" "$APP_DIR" node_modules .env tmp public .htaccess .deps.sha
+    sync_dir "$REPO_DIR/server" "$APP_DIR" node_modules .env tmp public .htaccess .deps.sha .code.sha
     deploy_api && api=1
   fi
 
   finish live
   echo "Deployed: $(git -C "$REPO_DIR" log -1 --format='%s') at $(date -Is)"
-  [ "$api" = 1 ] && restart_api
+  if [ "$api" = 1 ] && [ "$CHANGED" = 1 ]; then
+    restart_api
+  else
+    echo "API unchanged, no restart"
+  fi
   return 0
 }
 
@@ -66,13 +71,22 @@ deploy_api() {
   source "$venv"
   set -u
   cd "$APP_DIR"
+  local code out
+  code=$(cd "$REPO_DIR/server" && find . -type f -not -path './node_modules/*' | sort | xargs sha1sum | sha1sum | cut -d' ' -f1)
+  if [ "$code" != "$(cat .code.sha 2>/dev/null || true)" ]; then
+    echo "$code" > .code.sha
+    CHANGED=1
+  fi
   sum=$(sha1sum package-lock.json | cut -d' ' -f1)
   if [ "$sum" != "$(cat .deps.sha 2>/dev/null || true)" ]; then
     npm install --omit=dev --no-audit --no-fund
     echo "$sum" > .deps.sha
+    CHANGED=1
   fi
   if [ -f .env ]; then
-    node src/migrate.mjs
+    out=$(node src/migrate.mjs)
+    echo "$out"
+    case "$out" in *Applied*) CHANGED=1 ;; esac
   fi
   set +u
   deactivate 2>/dev/null || true
