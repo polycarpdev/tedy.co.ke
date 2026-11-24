@@ -20,3 +20,8 @@
 @media (prefers-reduced-motion: reduce) { .rt-glint { animation: none; opacity: 0; } }
 @keyframes rt-spin { to { rotate: 360deg; } }
 @media (prefers-reduced-motion: reduce) { .rt-wheel, .rt-veh { animation: none !important; } }
+.rt-label { position: absolute; top: calc(100% - 0.15rem); display: none; translate: -50% 0; white-space: nowrap; font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(236, 232, 225, 0.6); }
+.rt-label.rt-low { top: calc(100% + 0.5rem); }
+.rt-label.rt-first { translate: 0 0; }
+.rt-label.rt-last { translate: -100% 0; }
+.rt-label.is-passed { color: var(--color-ember, #ff8a3d); }

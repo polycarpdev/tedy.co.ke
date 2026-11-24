@@ -27,7 +27,7 @@ export function initJourneyBar() {
         paintRoute(q('line'), pts, sim);
         const tag = j.rehearsal ? 'Rehearsal · ' : '';
         if (sim.state === 'live') {
-          q('kicker').textContent = `${tag}On the way home`;
+          q('kicker').textContent = `${tag}On the way · next ${pts[sim.next].name.split(',')[0]}`;
           q('time').textContent = j.stopped ? 'Brief stop' : `ETA ${time(sim.eta)}`;
         } else {
           const left = new Date(j.depart_at).getTime() - Date.now();

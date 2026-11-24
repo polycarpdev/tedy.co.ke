@@ -78,10 +78,17 @@ export function buildRoute(line: HTMLElement, pts: Point[]) {
     dot.title = p.name;
     return dot;
   });
+  const labels = pts.map((p, i) => {
+    const lab = document.createElement('span');
+    lab.className = `rt-label${i % 2 ? ' rt-low' : ''}${i === 0 ? ' rt-first' : ''}${i === pts.length - 1 ? ' rt-last' : ''}`;
+    lab.style.left = `${(p.km / max) * 100}%`;
+    lab.textContent = p.name.split(',')[0];
+    return lab;
+  });
   const car = document.createElement('span');
   car.className = 'rt-car';
   car.innerHTML = CAR;
-  line.replaceChildren(fill, ...dots, car);
+  line.replaceChildren(fill, ...dots, ...labels, car);
 }
 
 export function paintRoute(line: HTMLElement, pts: Point[], sim: Sim) {
@@ -89,4 +96,5 @@ export function paintRoute(line: HTMLElement, pts: Point[], sim: Sim) {
   line.dataset.state = sim.state;
   line.classList.toggle('is-held', sim.held);
   line.querySelectorAll<HTMLElement>('.rt-dot').forEach((d, i) => d.classList.toggle('is-passed', !!pts[i]?.passed_at));
+  line.querySelectorAll<HTMLElement>('.rt-label').forEach((d, i) => d.classList.toggle('is-passed', !!pts[i]?.passed_at));
 }

@@ -17,21 +17,42 @@ const paragraphs = (t: string) => t.split(/\n\s*\n/).map((p) => p.trim()).filter
   <template data-chapter={s.slug}>
     <article class="chapter">
       {s.media.length > 0 && (
-        <div class="ch-carousel">
-          <div class="ch-photos" data-carousel>
-            {s.media.map((m) => (
-              <figure class="ch-photo">
-                <Photo photo={m} sizes="(min-width: 1024px) 64rem, 100vw" />
-                {(m.caption || m.by_tedy) && (
-                  <figcaption>
-                    {m.caption && <span>{m.caption}</span>}
-                    {m.by_tedy && <span class="by">Photo by Tedy</span>}
-                  </figcaption>
-                )}
-              </figure>
-            ))}
+        <div class={`ch-carousel${s.media.length > 1 ? ' has-thumbs' : ''}`}>
+          <div class="ch-stage">
+            <div class="ch-photos" data-carousel>
+              {s.media.map((m) => (
+                <figure class="ch-photo">
+                  <Photo photo={m} sizes="(min-width: 1024px) 64rem, 100vw" />
+                  {(m.caption || m.by_tedy) && (
+                    <figcaption>
+                      {m.caption && <span>{m.caption}</span>}
+                      {m.by_tedy && <span class="by">Photo by Tedy</span>}
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+            {s.media.length > 1 && (
+              <>
+                <p class="ch-counter" data-counter>1 / {s.media.length}</p>
+                <button class="ch-nav ch-prev" type="button" data-car-step="-1" aria-label="Previous photo" disabled>
+                  <Icon name="caret-left" />
+                </button>
+                <button class="ch-nav ch-next" type="button" data-car-step="1" aria-label="Next photo">
+                  <Icon name="caret-right" />
+                </button>
+              </>
+            )}
           </div>
-          {s.media.length > 1 && <p class="ch-counter" data-counter>1 / {s.media.length}</p>}
+          {s.media.length > 1 && (
+            <div class="ch-thumbs">
+              {s.media.map((m, k) => (
+                <button class={`ch-thumb${k === 0 ? ' is-on' : ''}`} type="button" data-car-go={k} aria-label={`Photo ${k + 1}`}>
+                  <img src={`/media/${m.file}/480.webp`} alt="" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
       <div class="ch-text">

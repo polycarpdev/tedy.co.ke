@@ -345,6 +345,17 @@ export function initTrail(root: HTMLElement): () => void {
 
   const onClick = (e: MouseEvent) => {
     lastInteract = performance.now();
+    const nav = (e.target as HTMLElement).closest<HTMLElement>('[data-car-step],[data-car-go]');
+    if (nav) {
+      const strip = nav.closest('.ch-carousel')?.querySelector<HTMLElement>('[data-carousel]');
+      if (strip) {
+        const w = strip.clientWidth || 1;
+        const cur = Math.round(strip.scrollLeft / w);
+        const to = nav.dataset.carGo !== undefined ? Number(nav.dataset.carGo) : cur + Number(nav.dataset.carStep);
+        strip.scrollTo({ left: clamp(to, 0, strip.children.length - 1) * w, behavior: 'smooth' });
+      }
+      return;
+    }
     const el = (e.target as HTMLElement).closest<HTMLElement>(
       '[data-open],[data-resume],[data-begin],[data-jump],[data-step]'
     );
@@ -416,10 +427,14 @@ export function initTrail(root: HTMLElement): () => void {
   const onCarousel = (e: Event) => {
     const el = e.target as HTMLElement;
     if (!el.matches?.('[data-carousel]')) return;
-    const counter = el.parentElement?.querySelector('[data-counter]');
-    if (counter) {
-      counter.textContent = `${Math.round(el.scrollLeft / (el.clientWidth || 1)) + 1} / ${el.children.length}`;
-    }
+    const i = Math.round(el.scrollLeft / (el.clientWidth || 1));
+    const n = el.children.length;
+    const box = el.closest('.ch-carousel');
+    const counter = box?.querySelector('[data-counter]');
+    if (counter) counter.textContent = `${i + 1} / ${n}`;
+    box?.querySelectorAll<HTMLElement>('.ch-thumb').forEach((t, k) => t.classList.toggle('is-on', k === i));
+    box?.querySelector('.ch-prev')?.toggleAttribute('disabled', i <= 0);
+    box?.querySelector('.ch-next')?.toggleAttribute('disabled', i >= n - 1);
   };
 
   const onScroll = () => {

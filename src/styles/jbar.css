@@ -30,3 +30,8 @@ html.has-jbar .site-header { top: var(--jbar-h); }
   .jbar { gap: 0.6rem; font-size: 0.56rem; letter-spacing: 0.1em; }
   .jbar-line { width: 5rem; --car: 2.5rem; }
 }
+@media (min-width: 1024px) {
+  :root { --jbar-h: 3.4rem; }
+  .jbar-line { width: 30rem; margin-bottom: 1.1rem; }
+  .jbar-line .rt-label { display: block; }
+}
