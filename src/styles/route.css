@@ -1,5 +1,5 @@
 /* src/styles/route.css */
-.rt-line { position: relative; height: 1.7rem; --fill: 0%; --car: 3.2rem; }
+.rt-line { position: relative; height: 1.7rem; --fill: 0%; --car: 4.2rem; }
 .rt-line::before, .rt-fill { content: ""; position: absolute; left: 0; bottom: 0.35rem; height: 1px; }
 .rt-line::before { right: 0; background: rgba(236, 232, 225, 0.3); }
 .rt-fill { width: var(--fill); background: var(--color-ember, #ff8a3d); transition: width 1s linear; }
@@ -7,9 +7,16 @@
 .rt-dot.rt-end { width: 0.55rem; height: 0.55rem; background: #ece8e1; }
 .rt-dot.is-passed { background: var(--color-ember, #ff8a3d); }
 .rt-car { position: absolute; bottom: 0.2rem; left: var(--fill); width: var(--car); translate: -50% 0; color: #ece8e1; transition: left 1s linear; }
-.rt-car svg { display: block; width: 100%; height: auto; }
-.rt-line[data-state="live"]:not(.is-held) .rt-car svg { animation: rt-bob 0.9s ease-in-out infinite alternate; }
+.rt-veh { position: relative; display: block; }
+.rt-body { display: block; width: 100%; height: auto; }
+.rt-wheel { position: absolute; width: 11.5%; height: auto; aspect-ratio: 1; translate: -50% -50%; }
+.rt-w1 { left: 16.58%; top: 83.4%; }
+.rt-w2 { left: 87.93%; top: 82.5%; }
+.rt-line[data-state="live"]:not(.is-held) .rt-wheel { animation: rt-spin 1.4s linear infinite; }
+.rt-line[data-state="live"]:not(.is-held) .rt-veh { animation: rt-bob 0.9s ease-in-out infinite alternate; }
 @keyframes rt-bob { to { translate: 0 -1px; } }
 .rt-glint { transform: skewX(-20deg); animation: rt-glint 4.5s ease-in-out infinite; }
 @keyframes rt-glint { 0%, 55% { translate: -10px 0; } 100% { translate: 95px 0; } }
 @media (prefers-reduced-motion: reduce) { .rt-glint { animation: none; opacity: 0; } }
+@keyframes rt-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .rt-wheel, .rt-veh { animation: none !important; } }
