@@ -10,3 +10,6 @@
 .rt-car svg { display: block; width: 100%; height: auto; }
 .rt-line[data-state="live"]:not(.is-held) .rt-car svg { animation: rt-bob 0.9s ease-in-out infinite alternate; }
 @keyframes rt-bob { to { translate: 0 -1px; } }
+.rt-glint { transform: skewX(-20deg); animation: rt-glint 4.5s ease-in-out infinite; }
+@keyframes rt-glint { 0%, 55% { translate: -10px 0; } 100% { translate: 95px 0; } }
+@media (prefers-reduced-motion: reduce) { .rt-glint { animation: none; opacity: 0; } }
