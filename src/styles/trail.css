@@ -931,3 +931,36 @@ html.is-gated .trail .stage { touch-action: none; }
   .ch-carousel.has-thumbs .ch-thumb { width: 100%; height: 4.6rem; }
 }
 .hw-line { margin-inline: calc(var(--car) / 2); }
+
+.vigil-go .btn[data-begin], .stop-actions .btn[data-open], .sheet-foot .btn[data-resume] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  animation: cta-glow 2.8s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+.vigil-go .btn[data-begin]::after, .stop-actions .btn[data-open]::after, .sheet-foot .btn[data-resume]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.32) 50%, transparent 65%);
+  translate: -130% 0;
+  animation: cta-shine 3.8s ease-in-out infinite;
+  pointer-events: none;
+}
+.vigil-go .btn[data-begin] svg { animation: cta-nudge-x 1.6s ease-in-out infinite; }
+.stop-actions .btn[data-open] svg { animation: cta-nudge-up 1.6s ease-in-out infinite; }
+.sheet-foot .btn[data-resume] svg { animation: cta-pulse 1.6s ease-in-out infinite; }
+.vigil-go .btn[data-begin]:hover, .stop-actions .btn[data-open]:hover, .sheet-foot .btn[data-resume]:hover { transform: translateY(-2px); }
+
+@keyframes cta-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(218, 41, 28, 0.5); } 60% { box-shadow: 0 0 0 0.6rem rgba(218, 41, 28, 0); } }
+@keyframes cta-shine { 0%, 55% { translate: -130% 0; } 100% { translate: 130% 0; } }
+@keyframes cta-nudge-x { 0%, 100% { translate: 0 0; } 50% { translate: 0.25rem 0; } }
+@keyframes cta-nudge-up { 0%, 100% { translate: 0 0; } 50% { translate: 0.18rem -0.18rem; } }
+@keyframes cta-pulse { 0%, 100% { scale: 1; } 50% { scale: 1.2; } }
+@media (prefers-reduced-motion: reduce) {
+  .vigil-go .btn[data-begin], .stop-actions .btn[data-open], .sheet-foot .btn[data-resume],
+  .vigil-go .btn[data-begin] svg, .stop-actions .btn[data-open] svg, .sheet-foot .btn[data-resume] svg { animation: none; }
+  .vigil-go .btn[data-begin]::after, .stop-actions .btn[data-open]::after, .sheet-foot .btn[data-resume]::after { display: none; }
+}
