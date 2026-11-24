@@ -902,3 +902,12 @@ html.is-gated .trail .stage { touch-action: none; }
 .trail .stop-text :is(.stop-title, .stop-line, .stop-meta span, .link) { color: #f4efe8 !important; }
 .trail .stop-text .stop-line { opacity: 0.85; }
 @media (min-width: 1024px) { .trail .stop-text { padding: 1.75rem 2rem; } }
+
+.homeward { display: grid; justify-items: center; gap: 0.3rem; margin-bottom: clamp(1rem, 3svh, 1.75rem); padding: 0.75rem 1.25rem; border: 1px solid rgba(236, 232, 225, 0.2); border-radius: 0.8rem; background: rgba(7, 9, 12, 0.35); color: #ece8e1; text-align: center; }
+.homeward[hidden] { display: none; }
+.hw-k { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.8; }
+.hw-route { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.2rem 0.5rem; font-size: 0.9rem; }
+.hw-route svg { color: var(--color-ember, #ff8a3d); }
+.hw-time { font-family: var(--font-mono); font-size: 1.35rem; letter-spacing: 0.08em; color: var(--color-ember, #ff8a3d); font-variant-numeric: tabular-nums; }
+.homeward[data-state="live"] .hw-time, .homeward[data-state="home"] .hw-time { font-size: 1rem; letter-spacing: 0.04em; }
+@media (max-width: 640px) { .homeward { padding: 0.6rem 0.9rem; } .hw-route { font-size: 0.8rem; } .hw-time { font-size: 1.1rem; } }

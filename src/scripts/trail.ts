@@ -2,6 +2,7 @@
 import { paintSky, resetSky } from './sky';
 import { initCandles } from './candle';
 import { initStream } from './stream';
+import { initHomeward } from './homeward';
 
 type Stop = { slug: string; year: string; outfit: string; accessory: string };
 
@@ -448,6 +449,7 @@ export function initTrail(root: HTMLElement): () => void {
   root.dataset.ready = '';
   const stopCandles = initCandles(root, renderStars);
   const stopStreams = qa<HTMLElement>('[data-stream]').map(initStream);
+  const stopHomeward = initHomeward(root);
   window.addEventListener('resize', layout);
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('wheel', onWheel, { passive: false });
@@ -495,6 +497,7 @@ export function initTrail(root: HTMLElement): () => void {
     clearTimeout(greetTimer);
     stopCandles();
     stopStreams.forEach((f) => f());
+    stopHomeward();
     closeChapter(true);
     window.removeEventListener('resize', layout);
     window.removeEventListener('scroll', onScroll);
