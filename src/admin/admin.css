@@ -389,3 +389,20 @@ textarea.cms-input { resize: vertical; line-height: 1.55; }
 .cms-page figcaption { color: #8b9099; font: 12px "IBM Plex Mono", monospace; }
 
 .cms-move { padding: 6px 8px; font-size: 12px; color: #c9c5bd; cursor: pointer; }
+
+.cms-jr-now { display: grid; gap: 1rem; }
+.cms-jr-pass { width: 100%; min-height: 4.5rem; padding: 1rem; border: 0; border-radius: 0.8rem; background: #da291c; color: #fff; font: inherit; font-size: 1.2rem; font-weight: 600; cursor: pointer; }
+.cms-jr-pass:disabled { opacity: 0.6; }
+.cms-jr-home { font-size: 1.25rem; font-weight: 600; }
+.cms-jr-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.cms-jr-row input, .cms-jr-edit input { flex: 1; min-width: 0; width: 100%; padding: 0.6rem 0.75rem; border: 1px solid color-mix(in srgb, currentColor 20%, transparent); border-radius: 0.45rem; background: transparent; color: inherit; font: inherit; font-size: 1rem; }
+.cms-jr-row input { min-width: 12rem; }
+.cms-jr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.cms-jr-list li { display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 1rem; padding: 0.75rem 1rem; border: 1px solid color-mix(in srgb, currentColor 15%, transparent); border-radius: 0.6rem; }
+.cms-jr-list li span { font-size: 0.85rem; opacity: 0.7; }
+.cms-jr-list li.is-done { opacity: 0.55; }
+.cms-jr-list li.is-next { border-color: #da291c; }
+.cms-jr-edit { display: grid; gap: 0.6rem; }
+.cms-jr-edit label { display: grid; gap: 0.3rem; font-size: 0.8rem; opacity: 0.85; }
+.cms-jr-line { display: grid; grid-template-columns: minmax(0, 2fr) 5rem minmax(0, 1.5fr) auto; gap: 0.5rem; align-items: end; }
+@media (max-width: 640px) { .cms-jr-line { grid-template-columns: 1fr 5rem; } }

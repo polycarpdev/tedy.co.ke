@@ -8,12 +8,14 @@ import { Stops } from './Stops';
 import { Publish } from './Publish';
 import { Condolences } from './Condolences';
 import { Eulogy } from './Eulogy';
+import { Journey } from './Journey';
 
 const TABS: { id: string; label: string; icon: IconName }[] = [
   { id: 'overview', label: 'Overview', icon: 'overview' },
   { id: 'stops', label: 'Stops', icon: 'stops' },
   { id: 'eulogy', label: 'Eulogy', icon: 'eulogy' },
   { id: 'condolences', label: 'Condolences', icon: 'condolences' },
+  { id: 'journey', label: 'Journey', icon: 'stops' },
 ];
 
 const readTab = () => location.hash.replace('#', '').split('/')[0] || 'overview';
@@ -66,6 +68,7 @@ export function Shell({ admin, onSignOut }: { admin: Admin; onSignOut: () => voi
         {tab === 'stops' && <Stops />}
         {tab === 'eulogy' && <Eulogy />}
         {tab === 'condolences' && <Condolences />}
+        {tab === 'journey' && <Journey />}
       </main>
     </>
   );
