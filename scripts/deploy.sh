@@ -8,7 +8,6 @@ APP_DIR="$HOME/tedy-api"
 LOG="$HOME/tedy-deploy.log"
 
 main() {
-  exec > >(tee -a "$LOG") 2>&1
   exec 9>"$HOME/.tedy-deploy.lock"
   flock 9
   trap 'finish failed' ERR
@@ -33,7 +32,6 @@ main() {
 
   finish live
   echo "Deployed: $(git -C "$REPO_DIR" log -1 --format='%s') at $(date -Is)"
-  trim_log
   [ "$api" = 1 ] && restart_api
   return 0
 }
