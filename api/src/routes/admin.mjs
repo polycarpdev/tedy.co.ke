@@ -7,12 +7,13 @@ import { touch } from '../meta.mjs';
 import { stops } from './stops.mjs';
 import { condolences } from './condolences.mjs';
 import { eulogy } from './eulogy.mjs';
+import { journey } from './journey.mjs';
 
 export const admin = Router();
 admin.use(requireAdmin);
 
 admin.use((req, res, next) => {
-  if (req.method !== 'GET' && !req.path.startsWith('/notifications') && !req.path.startsWith('/publish')) {
+  if (req.method !== 'GET' && !req.path.startsWith('/notifications') && !req.path.startsWith('/publish') && !req.path.startsWith('/journey')) {
     res.on('finish', () => {
       if (res.statusCode < 400) touch().catch(() => {});
     });
@@ -108,3 +109,4 @@ admin.post('/publish', async (_req, res) => {
 admin.use(stops);
 admin.use(condolences);
 admin.use(eulogy);
+admin.use(journey);

@@ -6,6 +6,7 @@ import { pool } from '../db.mjs';
 import { notify } from '../notify.mjs';
 import { limit } from '../limit.mjs';
 import { sendMail } from '../mail.mjs';
+import { journeyState } from './journey.mjs';
 
 export const publicRoutes = Router();
 
@@ -179,6 +180,11 @@ publicRoutes.post('/candles', limit(10, HOUR), async (req, res) => {
   if (!recent.rowCount) await pool.query('INSERT INTO candles (ip_hash) VALUES ($1)', [h]);
   const { rows } = await pool.query('SELECT count(*)::int AS n FROM candles');
   res.json({ count: rows[0].n });
+});
+
+publicRoutes.get('/journey', async (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=15, s-maxage=20');
+  res.json(await journeyState());
 });
 
 publicRoutes.get('/eulogy', async (_req, res) => {
