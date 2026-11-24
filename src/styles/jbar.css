@@ -1,0 +1,32 @@
+/* src/styles/jbar.css */
+:root { --jbar-h: 2.25rem; }
+.jbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  height: var(--jbar-h);
+  padding: 0 1rem;
+  border-bottom: 1px solid rgba(236, 232, 225, 0.12);
+  background: #07090c;
+  color: #ece8e1;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.jbar[hidden] { display: none; }
+.jbar-k { white-space: nowrap; }
+.jbar-line { flex: none; width: 9rem; height: 1.4rem; --car: 2.3rem; }
+.jbar-time { color: var(--color-ember, #ff8a3d); white-space: nowrap; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+html.has-jbar .site-header { top: var(--jbar-h); }
+@media (max-width: 640px) {
+  .jbar { gap: 0.6rem; font-size: 0.56rem; letter-spacing: 0.1em; }
+  .jbar-line { width: 5rem; --car: 1.9rem; }
+}

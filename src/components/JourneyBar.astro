@@ -1,0 +1,13 @@
+---
+// src/components/JourneyBar.astro
+---
+<a class="jbar" href="/journey/" data-jbar hidden transition:persist="journey-bar">
+  <span class="jbar-k" data-jb-kicker>Bringing Tedy home</span>
+  <span class="jbar-line rt-line" data-jb-line></span>
+  <span class="jbar-time" data-jb-time></span>
+</a>
+
+<script>
+  import { initJourneyBar } from '../scripts/journey-bar';
+  initJourneyBar();
+</script>

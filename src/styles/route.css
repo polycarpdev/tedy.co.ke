@@ -1,12 +1,12 @@
 /* src/styles/route.css */
-.rt-line { position: relative; height: 1.7rem; --fill: 0%; --car: 2.1rem; }
+.rt-line { position: relative; height: 1.7rem; --fill: 0%; --car: 3.2rem; }
 .rt-line::before, .rt-fill { content: ""; position: absolute; left: 0; bottom: 0.35rem; height: 1px; }
 .rt-line::before { right: 0; background: rgba(236, 232, 225, 0.3); }
 .rt-fill { width: var(--fill); background: var(--color-ember, #ff8a3d); transition: width 1s linear; }
 .rt-dot { position: absolute; bottom: 0.35rem; width: 0.3rem; height: 0.3rem; border-radius: 50%; translate: -50% 50%; background: rgba(236, 232, 225, 0.55); }
 .rt-dot.rt-end { width: 0.55rem; height: 0.55rem; background: #ece8e1; }
 .rt-dot.is-passed { background: var(--color-ember, #ff8a3d); }
-.rt-car { position: absolute; bottom: 0.42rem; left: var(--fill); width: var(--car); translate: -50% 0; color: #ece8e1; transition: left 1s linear; }
+.rt-car { position: absolute; bottom: 0.2rem; left: var(--fill); width: var(--car); translate: -50% 0; color: #ece8e1; transition: left 1s linear; }
 .rt-car svg { display: block; width: 100%; height: auto; }
-.rt-line[data-state="live"]:not(.is-held) .rt-car svg { animation: rt-bob 0.5s ease-in-out infinite alternate; }
+.rt-line[data-state="live"]:not(.is-held) .rt-car svg { animation: rt-bob 0.9s ease-in-out infinite alternate; }
 @keyframes rt-bob { to { translate: 0 -1px; } }
