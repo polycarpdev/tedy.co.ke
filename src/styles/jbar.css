@@ -35,3 +35,9 @@ html.has-jbar .site-header { top: var(--jbar-h); }
   .jbar-line { width: 30rem; margin-bottom: 1.1rem; }
   .jbar-line .rt-label { display: block; }
 }
+.jbar-line { margin-inline: calc(var(--car) / 2); }
+@media (max-width: 640px) {
+  :root { --jbar-h: 3.9rem; }
+  .jbar { display: grid; grid-template-columns: auto auto; justify-content: center; align-content: center; column-gap: 0.6rem; row-gap: 0.15rem; font-size: 0.6rem; }
+  .jbar-line { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(17rem, 78vw); height: 1.6rem; --car: 2.8rem; }
+}
