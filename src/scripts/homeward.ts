@@ -1,5 +1,5 @@
 // src/scripts/homeward.ts
-type Point = { name: string; planned_at: string; passed_at: string | null };
+type Point = { name: string; km: number; passed_at: string | null };
 type Data = {
   journey: { depart_at: string; arrive_at: string; show_until: string | null; stopped: boolean; note: string } | null;
   points: Point[];
@@ -7,7 +7,7 @@ type Data = {
 
 const TZ = 'Africa/Nairobi';
 const day = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ });
+  new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: TZ });
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
 const p2 = (n: number) => String(n).padStart(2, '0');
@@ -15,9 +15,14 @@ const p2 = (n: number) => String(n).padStart(2, '0');
 function span(ms: number) {
   const s = Math.max(0, Math.floor(ms / 1000));
   const d = Math.floor(s / 86400);
-  const h = Math.floor((s % 86400) / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  return d > 0 ? `${d}d ${p2(h)}h ${p2(m)}m` : `${p2(h)}:${p2(m)}:${p2(s % 60)}`;
+  const rest = `${p2(Math.floor((s % 86400) / 3600))}h ${p2(Math.floor((s % 3600) / 60))}m ${p2(s % 60)}s`;
+  return d > 0 ? `${d}d ${rest}` : rest;
+}
+
+function short(name: string) {
+  const head = name.split(',')[0].trim();
+  if (head.length <= 14) return head;
+  return head.split(/\s+/).map((w) => w[0]).join('').toUpperCase();
 }
 
 export function initHomeward(root: ParentNode): () => void {
@@ -25,7 +30,29 @@ export function initHomeward(root: ParentNode): () => void {
   if (!el) return () => {};
   const q = (k: string) => el.querySelector<HTMLElement>(`[data-hw-${k}]`)!;
   let data: Data | null = null;
+  let built = '';
   let alive = true;
+
+  function buildLine(pts: Point[]) {
+    const key = pts.map((p) => `${p.name}:${p.km}`).join('|');
+    if (key === built) return;
+    built = key;
+    const max = pts[pts.length - 1].km || 1;
+    const line = q('line');
+    line.replaceChildren();
+    const fill = document.createElement('span');
+    fill.className = 'hw-fill';
+    line.append(fill);
+    pts.forEach((p, i) => {
+      const dot = document.createElement('span');
+      dot.className = i === 0 || i === pts.length - 1 ? 'hw-dot hw-end' : 'hw-dot';
+      dot.style.left = `${(p.km / max) * 100}%`;
+      dot.title = p.name;
+      line.append(dot);
+    });
+    q('from').textContent = short(pts[0].name);
+    q('to').textContent = short(pts[pts.length - 1].name);
+  }
 
   function render() {
     if (!data?.journey || data.points.length < 2) {
@@ -41,20 +68,19 @@ export function initHomeward(root: ParentNode): () => void {
       return;
     }
     el.hidden = false;
-    q('from').textContent = pts[0].name;
-    q('to').textContent = pts[pts.length - 1].name;
+    buildLine(pts);
     const passed = pts.filter((p) => p.passed_at);
+    const last = passed[passed.length - 1];
+    const max = pts[pts.length - 1].km || 1;
+    q('line').style.setProperty('--fill', `${last ? (last.km / max) * 100 : 0}%`);
+    el.querySelectorAll<HTMLElement>('.hw-dot').forEach((d, i) => d.classList.toggle('is-passed', !!pts[i]?.passed_at));
     const home = pts[pts.length - 1].passed_at;
-    el.dataset.state = home ? 'home' : passed.length ? 'live' : 'soon';
     if (home) {
       q('kicker').textContent = 'Tedy is home';
       q('time').textContent = `Arrived ${time(home)}`;
-    } else if (passed.length) {
-      const last = passed[passed.length - 1];
+    } else if (last) {
       q('kicker').textContent = 'On the way home now';
-      q('time').textContent = j.stopped
-        ? `Brief stop${j.note ? `: ${j.note}` : ''}`
-        : `Last: ${last.name}, ${time(last.passed_at!)}`;
+      q('time').textContent = j.stopped ? `Brief stop${j.note ? `: ${j.note}` : ''}` : `Last: ${last.name}, ${time(last.passed_at!)}`;
     } else {
       const left = new Date(j.depart_at).getTime() - now;
       q('kicker').textContent = `Bringing Tedy home · ${day(j.depart_at)}, ${time(j.depart_at)}`;
