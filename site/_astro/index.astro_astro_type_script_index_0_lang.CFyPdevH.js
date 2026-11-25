@@ -1,0 +1,1 @@
+import{n as e,t}from"./stream.BkFbvxuV.js";var n=[],r=()=>{n.forEach(e=>e()),n=[]};document.addEventListener(`astro:page-load`,()=>{r();let i=document.querySelector(`.cf`);if(!i)return;n.push(e(i));let a=i.querySelector(`[data-stream]`);a&&n.push(t(a))}),document.addEventListener(`astro:before-swap`,r);
