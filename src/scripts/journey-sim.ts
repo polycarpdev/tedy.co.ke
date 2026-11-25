@@ -82,7 +82,8 @@ export function buildRoute(line: HTMLElement, pts: Point[]) {
     const lab = document.createElement('span');
     lab.className = `rt-label${i % 2 ? ' rt-low' : ''}${i === 0 ? ' rt-first' : ''}${i === pts.length - 1 ? ' rt-last' : ''}`;
     lab.style.left = `${(p.km / max) * 100}%`;
-    lab.textContent = p.name.split(',')[0];
+    const head = p.name.split(',')[0].trim();
+    lab.textContent = head.length > 14 ? head.split(/\s+/).map((w) => w[0]).join('').toUpperCase() : head;
     return lab;
   });
   const car = document.createElement('span');

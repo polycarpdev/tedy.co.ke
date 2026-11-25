@@ -41,3 +41,8 @@ html.has-jbar .site-header { top: var(--jbar-h); }
   .jbar { display: grid; grid-template-columns: auto auto; justify-content: center; align-content: center; column-gap: 0.6rem; row-gap: 0.15rem; font-size: 0.6rem; }
   .jbar-line { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(17rem, 78vw); height: 1.6rem; --car: 2.8rem; }
 }
+@media (min-width: 1024px) {
+  .jbar-line { margin-inline: 3.8rem; }
+  .jbar-line .rt-label.rt-first { top: auto; bottom: 0.1rem; translate: calc(-100% - 0.55rem) 50%; }
+  .jbar-line .rt-label.rt-last { top: auto; bottom: 0.1rem; translate: 0.55rem 50%; }
+}
